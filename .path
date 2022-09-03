@@ -1,0 +1,2 @@
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$HOME/.local/bin:$HOME/go/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
