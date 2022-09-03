@@ -1,4 +1,4 @@
-#Dotfiles
+# Dotfiles
 
 ## Getting Started
 
@@ -22,4 +22,37 @@ On new machine
 git clone --bare <git-repo-url> $HOME/.cfg
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 config checkout
+```
+
+## Extra
+
+Use `~/.extra`for things you don't want to commit.
+
+My `~/.extra` looks something like this:
+
+```bash
+# Git credentials
+export GIT_AUTHOR_NAME="Alex Mazanov"
+export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+git config --global user.name "$GIT_AUTHOR_NAME"
+export GIT_AUTHOR_EMAIL="alexandr.mazanov@gmail.com"
+export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+git config --global user.email "$GIT_AUTHOR_EMAIL"
+
+export GITHUB_TOKEN="blablabla"
+```
+### Sensible macOS defaults
+
+When setting up a new Mac, you may want to set some sensible macOS defaults:
+
+```bash
+./.macos
+```
+
+### Install Homebrew formulae
+
+Brew formulae and casks are installed using brew bundle, from `Brewfile`:
+
+```bash
+brew bundle install
 ```
