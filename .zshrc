@@ -34,3 +34,5 @@ source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 ## Init asdf
 . /opt/homebrew/opt/asdf/libexec/asdf.sh
 
+
+source /Users/alex/.config/broot/launcher/bash/br

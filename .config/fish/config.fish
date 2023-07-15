@@ -11,3 +11,5 @@ end
 
 starship init fish | source
 
+direnv hook fish | source
+. /opt/homebrew/opt/asdf/libexec/asdf.fish
