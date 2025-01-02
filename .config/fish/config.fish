@@ -10,6 +10,17 @@ for file in ~/.{path,bash_prompt,exports,aliases,functions,extra}
 end
 
 starship init fish | source
+atuin init fish | source
 
-direnv hook fish | source
-. /opt/homebrew/opt/asdf/libexec/asdf.fish
+
+# pnpm
+set -gx PNPM_HOME "/Users/alex/Library/pnpm"
+if not string match -q -- $PNPM_HOME $PATH
+  set -gx PATH "$PNPM_HOME" $PATH
+end
+# pnpm end
+/opt/homebrew/bin/mise activate fish | source
+
+function manz
+    man $argv | col -b | zed -
+end
