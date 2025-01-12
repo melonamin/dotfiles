@@ -1,5 +1,5 @@
 # Make vim the default editor.
-export EDITOR='subl -w';
+export EDITOR='zed --wait';
 
 # Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
 export PYTHONIOENCODING='UTF-8';
