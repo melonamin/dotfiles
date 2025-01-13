@@ -13,14 +13,25 @@ starship init fish | source
 atuin init fish | source
 
 
-# pnpm
-set -gx PNPM_HOME "/Users/alex/Library/pnpm"
-if not string match -q -- $PNPM_HOME $PATH
-  set -gx PATH "$PNPM_HOME" $PATH
-end
-# pnpm end
 /opt/homebrew/bin/mise activate fish | source
 
 function manz
     man $argv | col -b | zed -
+end
+
+# bun
+set --export BUN_INSTALL "$HOME/.bun"
+set --export PATH $BUN_INSTALL/bin $PATH
+
+atuin init fish | source
+zoxide init --cmd cd fish | source
+~/.local/bin/mise activate fish | source
+
+function y
+	set tmp (mktemp -t "yazi-cwd.XXXXXX")
+	yazi $argv --cwd-file="$tmp"
+	if set cwd (command cat -- "$tmp"); and [ -n "$cwd" ]; and [ "$cwd" != "$PWD" ]
+		builtin cd -- "$cwd"
+	end
+	rm -f -- "$tmp"
 end
