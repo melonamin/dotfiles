@@ -6,6 +6,9 @@ shell-integration = detect
 term = xterm-256color
 copy-on-select = true
 
+keybind = global:cmd+ctrl+option+q=toggle_quick_terminal
+quick-terminal-animation-duration = 0.1
+
 window-save-state = always
 window-new-tab-position = end
 window-decoration = true
