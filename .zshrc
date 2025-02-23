@@ -38,3 +38,5 @@ source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /Users/alex/.config/broot/launcher/bash/br
 
 source <(pkgx --shellcode)  #docs.pkgx.sh/shellcode
+
+source ~/.extra

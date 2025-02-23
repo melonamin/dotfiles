@@ -1,0 +1,77 @@
+[user]
+	name = Alex Mazanov
+	email = alexandr.mazanov@gmail.com
+	signingkey = EB5B6876EF465A18574C0891FD35C3C7C1D34AB4
+[github]
+	user = melonamin
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[commit]
+	gpgsign = true
+[gpg]
+	program = /usr/local/MacGPG2/bin/gpg2
+[mergetool]
+	keepBackup = false
+	prompt = false
+[diff]
+	external = difft
+	tool = Kaleidoscope
+[rerere]
+	enabled = 1
+[core]
+	hooksPath = /Users/alex/.git_hooks
+	[alias]
+        st = status
+        ci = commit
+        br = branch
+        co = checkout
+        df = diff
+        lg = log -p
+        lol = log --graph --decorate --pretty=oneline --abbrev-commit
+        lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+        ls = ls-files
+        # generate comment
+        llm = "!f() { \
+            if git diff --quiet $1; then \
+                echo \"No changes to commit. Aborting.\"; \
+            else \
+                commit_msg=$(git diff $1 | llm -s \"$(cat ~/.config/prompts/commit-system-prompt.txt)\"); \
+                echo \"Commit message:\n$commit_msg\"; \
+                read -p \"Do you want to commit with this message? [y/N] \" confirm; \
+                if [[ $confirm =~ ^[Yy]$ ]]; then \
+                    git commit -m \"$commit_msg\"; \
+                else \
+                    echo \"Commit aborted.\"; \
+                fi; \
+            fi; \
+        }; f"
+
+        llm-staged = "!f() { \
+            git add -p; \
+            if ! git diff --cached --quiet; then \
+                commit_msg=$(git diff --cached | llm -s \"$(cat ~/.config/prompts/commit-system-prompt.txt)\"); \
+                echo \"Commit message:\n$commit_msg\"; \
+                read -p \"Do you want to commit with this message? [y/N] \" confirm; \
+                if [[ $confirm =~ ^[Yy]$ ]]; then \
+                    git commit -m \"$commit_msg\"; \
+                else \
+                    git reset HEAD .; \
+                    echo \"Commit aborted.\"; \
+                fi; \
+            else \
+                echo \"No changes staged for commit. Aborting.\"; \
+            fi; \
+        }; f"
+[difftool "Kaleidoscope"]
+	cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
+[difftool]
+	prompt = false
+	trustExitCode = true
+[merge]
+	tool = Kaleidoscope
+[mergetool "Kaleidoscope"]
+	cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
+	trustExitCode = true
