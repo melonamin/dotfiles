@@ -120,3 +120,5 @@ alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 alias v='fzf --preview "bat --color=always {}"'
 
 alias mr='mise run'
+
+alias claude="devcon exec claude claude"
