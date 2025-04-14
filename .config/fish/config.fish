@@ -35,3 +35,4 @@ function y
 	end
 	rm -f -- "$tmp"
 end
+alias claude="/Users/alex/.claude/local/claude"

@@ -121,4 +121,4 @@ alias v='fzf --preview "bat --color=always {}"'
 
 alias mr='mise run'
 
-alias claude="devcon exec claude claude"
+alias dclaude="devcon exec claude claude"
