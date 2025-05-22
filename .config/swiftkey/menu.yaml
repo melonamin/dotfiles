@@ -4,7 +4,7 @@
   submenu:
     - key: x
       title: Xcode
-      action: launch:///Applications/Xcode-16.1.0.app
+      action: launch:///Applications/Xcode-16.3.0.app
     - key: t
       title: Ghostty
       action: launch:///Applications/Ghostty.app

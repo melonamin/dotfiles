@@ -17,7 +17,6 @@
 	keepBackup = false
 	prompt = false
 [diff]
-	external = difft
 	tool = Kaleidoscope
 [rerere]
 	enabled = 1

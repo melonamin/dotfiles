@@ -122,3 +122,6 @@ alias v='fzf --preview "bat --color=always {}"'
 alias mr='mise run'
 
 alias dclaude="devcon exec claude claude"
+
+# Review uncommitted changes with multiple providers
+alias mpt-review='mpt --git.diff --openai.enabled --google.enabled --anthropic.enabled --timeout=5m -p "Perform a comprehensive code review of these changes. Analyze the design patterns and architecture. Identify any security vulnerabilities or risks. Evaluate code readability, maintainability, and idiomatic usage. Suggest specific improvements where needed."'
