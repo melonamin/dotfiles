@@ -44,3 +44,4 @@ palette = 4=#2774C7
 palette = 8=#6A6A6A
 
 keybind = super+f=write_screen_file:open
+keybind = shift+enter=text:\n

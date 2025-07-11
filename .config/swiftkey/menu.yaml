@@ -1,82 +1,59 @@
-- key: d
-  title: Developer Tools
-  icon: terminal.fill
-  submenu:
-    - key: x
-      title: Xcode
-      action: launch:///Applications/Xcode-16.3.0.app
-    - key: t
-      title: Ghostty
-      action: launch:///Applications/Ghostty.app
-    - key: z
-      title: Zed
-      action: launch:///Applications/Zed.app
-      hotkey: ctrl+cmd+z
-    - key: v
-      title: Visual Studio Coded
-      action: launch:///Applications/Visual Studio Code.app
-    - key: g
-      title: Tower
-      action: launch:///Applications/Tower.app
-      hotkey: ctrl+cmd+g
-    - key: k
-      title: Kaleidoscope
-      action: launch:///Applications/Kaleidoscope.app
+- key: x
+  title: Xcode
+  action: launch:///Applications/Xcode-16.3.0.app
+- key: t
+  title: Ghostty
+  action: launch:///Applications/Ghostty.app
+- key: z
+  title: Zed
+  action: launch:///Applications/Zed.app
+  hotkey: ctrl+cmd+z
+- key: v
+  title: Visual Studio Coded
+  action: launch:///Applications/Visual Studio Code.app
+- key: g
+  title: Tower
+  action: launch:///Applications/Tower.app
+  hotkey: ctrl+cmd+g
 - key: m
   title: Messaging
   icon: message.fill
   submenu:
-    - key: s
-      title: Slack
-      action: launch:///Applications/Slack.app
-    - key: z
-      title: Zoom
-      action: launch:///Applications/zoom.us.app
-    - key: m
-      title: Messages
-      action: launch:///System/Applications/Messages.app/
-    - key: t
-      title: Telegram
-      action: launch:///Applications/Telegram.app
-- key: p
-  title: Productivity
-  icon: clock.fill
-  submenu:
-    - key: r
-      title: Reminders
-      action: launch:///System/Applications/Reminders.app
-    - key: n
-      title: Notes
-      action: launch:///System/Applications/Notes.app
-    - key: c
-      title: Calendar
-      action: launch:///System/Applications/Calendar.app
+  - key: s
+    title: Slack
+    action: launch:///Applications/Slack.app
+  - key: z
+    title: Zoom
+    action: launch:///Applications/zoom.us.app
+  - key: m
+    title: Messages
+    action: launch:///System/Applications/Messages.app/
+  - key: t
+    title: Telegram
+    action: launch:///Applications/Telegram.app
 - key: b
   title: Browsers
   icon: globe
   submenu:
-    - key: s
-      title: Safari
-      action: launch:///Applications/Safari.app
-    - key: c
-      title: Google Chrome
-      action: launch:///Applications/Google Chrome.app
-    - key: f
-      title: Firefox
-      action: launch:///Applications/Firefox.app
-    - key: a
-      title: Arc
-      action: launch:///Applications/Arc.app
+  - key: s
+    title: Safari
+    action: launch:///Applications/Safari.app
+  - key: c
+    title: Google Chrome
+    action: launch:///Applications/Google Chrome.app
+  - key: f
+    title: Firefox
+    action: launch:///Applications/Firefox.app
 - key: w
   title: Window Manager
   icon: bookmark.fill
   submenu:
-    - key: b
-      title: Bottom Half
-      action: open://raycast://extensions/raycast/window-management/bottom-half
-    - key: c
-      title: Calendar
-      action: open://https://c.t1a.com
+  - key: b
+    title: Bottom Half
+    action: open://raycast://extensions/raycast/window-management/bottom-half
+  - key: c
+    title: Calendar
+    action: open://https://c.t1a.com
 - key: c
   title: Confetti
   action: open://raycast://confetti
@@ -84,59 +61,33 @@
   title: Applications
   icon: app.fill
   submenu:
-    - key: b
-      title: Browsers
-      icon: safari
-      submenu:
-        - key: s
-          title: Safari
-          action: launch:///Applications/Safari.app
-        - key: c
-          title: Chrome
-          action: launch:///Applications/Google Chrome.app
-        - key: f
-          title: Firefox
-          action: launch:///Applications/Firefox.app
+  - key: b
+    title: Browsers
+    icon: safari
+    submenu:
+    - key: s
+      title: Safari
+      action: launch:///Applications/Safari.app
+    - key: c
+      title: Chrome
+      action: launch:///Applications/Google Chrome.app
+    - key: f
+      title: Firefox
+      action: launch:///Applications/Firefox.app
+  - key: p
+    title: Productivity
+    icon: doc.text
+    submenu:
     - key: p
-      title: Productivity
-      icon: doc.text
-      submenu:
-        - key: p
-          title: Preview
-          action: launch:///System/Applications/Preview.app
-        - key: n
-          title: Notes
-          action: launch:///System/Applications/Notes.app
-        - key: c
-          title: Calculator
-          action: launch:///System/Applications/Calculator.app
-- key: a
-  title: Applications
-  icon: app.fill
-  submenu:
-    - key: b
-      title: Browsers
-      icon: safari
-      submenu:
-        - key: s
-          title: Safari
-          action: launch:///Applications/Safari.app
-        - key: c
-          title: Chrome
-          action: launch:///Applications/Google Chrome.app
-        - key: f
-          title: Firefox
-          action: launch:///Applications/Firefox.app
-    - key: p
-      title: Productivity
-      icon: doc.text
-      submenu:
-        - key: p
-          title: Preview
-          action: launch:///System/Applications/Preview.app
-        - key: n
-          title: Notes
-          action: launch:///System/Applications/Notes.app
-        - key: c
-          title: Calculator
-          action: launch:///System/Applications/Calculator.app
+      title: Preview
+      action: launch:///System/Applications/Preview.app
+    - key: n
+      title: Notes
+      action: launch:///System/Applications/Notes.app
+    - key: c
+      title: Calculator
+      action: launch:///System/Applications/Calculator.app
+- key: n
+  title: New test
+  icon: airpodspro
+  action: launch:///Applications/Telegram.app

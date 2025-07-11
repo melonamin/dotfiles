@@ -43,3 +43,51 @@
 ## Compliance Check
 
 Before submitting any work, verify that you have followed ALL guidelines above. If you find yourself considering an exception to ANY rule, YOU MUST STOP and get explicit permission from Sasha first.
+
+## VibeTunnel Terminal Title Management
+
+When working in VibeTunnel sessions, actively use the `vt title` command to communicate your current actions and progress:
+
+### Usage
+```bash
+vt title "Current action - project context"
+```
+
+### Guidelines
+- **Update frequently**: Set the title whenever you start a new task, change focus, or make significant progress
+- **Be descriptive**: Use the title to explain what you're currently doing (e.g., "Analyzing test failures", "Refactoring auth module", "Writing documentation")
+- **Include context**: Add PR numbers, file names, or feature names when relevant
+- **Think of it as a status indicator**: The title helps users understand what you're working on at a glance
+- If `vt` command fails (only works inside VibeTunnel), simply ignore the error and continue
+
+### Examples
+```bash
+# When starting a task
+vt title "Setting up Git app integration"
+
+# When debugging
+vt title "Debugging CI failures - playwright tests"
+
+# When working on a PR
+vt title "Implementing unique session names - github.com/amantus-ai/vibetunnel/pull/456"
+
+# When analyzing code
+vt title "Analyzing session-manager.ts for race conditions"
+
+# When writing tests
+vt title "Adding tests for GitAppLauncher"
+```
+
+### When to Update
+- At the start of each new task or subtask
+- When switching between different files or modules
+- When changing from coding to testing/debugging
+- When waiting for long-running operations (builds, tests)
+- Whenever the user might wonder "what is Claude doing right now?"
+
+This helps users track your progress across multiple VibeTunnel sessions and understand your current focus.
+
+
+## Tool Usage
+- you must use uv instead of pip
+- your must use just instead of make and other tools for this role

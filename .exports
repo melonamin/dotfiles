@@ -32,3 +32,9 @@ export OPENAUDIBLE_HOME="/Volumes/Books/OpenAudible"
 
 # Brew
 export HOMEBREW_NO_AUTO_UPDATE=1
+
+# Claude Code
+export ENABLE_BACKGROUND_TASKS=1
+export CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1
+
+export PEEKABOO_AI_PROVIDERS="openai/gpt-4o"

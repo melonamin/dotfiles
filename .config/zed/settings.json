@@ -1,21 +1,7 @@
-// Zed settings
-//
-// For information on how to configure Zed, see the Zed
-// documentation: https://zed.dev/docs/configuring-zed
-//
-// To see all of Zed's default settings without changing your
-// custom settings, run the `open default settings` command
-// from the command palette or from `Zed` application menu.
 {
+  "icon_theme": "Material Icon Theme",
   "features": {
     "edit_prediction_provider": "zed"
-  },
-  "assistant": {
-    "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-7-sonnet-latest"
-    },
-    "version": "2"
   },
   "ssh_connections": [
     {
@@ -23,41 +9,137 @@
       "username": "alex",
       "projects": [
         {
-          "paths": [
-            "~/Documents"
-          ]
+          "paths": ["~/Documents"]
         },
         {
-          "paths": [
-            "~/Documents/docker"
-          ]
+          "paths": ["~/Documents/docker"]
         }
       ]
     }
   ],
-  "theme": "Atelier Forest Light",
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false
+  "agent": {
+    "default_profile": "write",
+    "always_allow_tool_actions": true,
+    "enable_experimental_live_diffs": true,
+    "default_model": {
+      "provider": "google",
+      "model": "gemini-2.5-pro-preview-03-25"
+    },
+    "version": "2"
+  },
+  "tabs": {
+    "git_status": true,
+    "file_icons": true,
+    "show_close_button": "hover"
+  },
+  "tab_bar": {
+    "show": true,
+    "show_nav_history_buttons": false
+  },
+  "project_panel": {
+    "indent_size": 16
+  },
+  "soft_wrap": "editor_width",
+  "preferred_line_length": 140,
+  "theme": "Catppuccin Latte - No Italics",
+  "buffer_font_family": "Victor Mono",
+  "buffer_font_weight": 400,
+  "buffer_line_height": "comfortable",
+  "ui_font_family": "Zed Plex Sans",
+  "ui_font_size": 14,
+  "buffer_font_size": null,
+  "show_edit_predictions": true,
+  "edit_predictions": {
+    "mode": "subtle"
   },
   "collaboration_panel": {
     "button": false
   },
-  "edit_predictions": {
-    "mode": "subtle"
+  "auto_signature_help": true,
+
+  "terminal": {
+    "dock": "bottom",
+    "detect_venv": { "on": { "activate_script": "fish" } },
+    "env": { "EDITOR": "zed --wait" }
   },
-  "base_keymap": "VSCode",
-  "ui_font_size": 16,
-  "buffer_font_size": 16,
+
+  "indent_guides": {
+    "enabled": true,
+    "coloring": "indent_aware"
+  },
+  "vim_mode": false,
+  "inlay_hints": { "enabled": true },
+  "scrollbar": { "show": "never" },
   "languages": {
     "Python": {
-      "formatter": {
-        "external": {
-          "command": "ruff",
-          "arguments": ["format", "-"]
+      "format_on_save": "on",
+      "language_servers": ["pyright", "ruff"],
+      "formatter": [
+        {
+          "code_actions": {
+            "source.organizeImports.ruff": true,
+            "source.fixAll.ruff": true
+          }
+        },
+        {
+          "language_server": {
+            "name": "ruff"
+          }
         }
-      },
-      "format_on_save": "on"
+      ]
+    }
+  },
+  "lsp": {
+    "ruff": {
+      "initialization_options": {
+        "settings": {
+          "lineLength": 130,
+          "lint": {
+            "extendSelect": ["I"]
+          }
+        }
+      }
+    },
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace"
+          // "typeCheckingMode": "strict"
+        },
+        "python": {
+          "pythonPath": ".venv/bin/python"
+        }
+      }
+    }
+  },
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.venv",
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/target",
+    "**/.rope*",
+    "**/*_cache",
+    "**/__pycache__",
+    "**/.*-version",
+    "**/.DS_Store"
+  ],
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "jupyter": {
+    "kernel_selections": {
+      "typescript": "deno",
+      "javascript": "deno"
+    }
+  },
+  "context_servers": {
+    "mcp-server-brave-search": {
+      "settings": {
+        "brave_api_key": ""
+      }
     }
   }
 }
