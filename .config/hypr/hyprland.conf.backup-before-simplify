@@ -1,0 +1,242 @@
+# Learn how to configure Hyprland: https://wiki.hyprland.org/Configuring/
+
+# Change your personal monitor setup in here to keep the main config portable
+source = ~/.config/hypr/monitors.conf
+
+# Default applications
+$terminal = ghostty
+$fileManager = nautilus --new-window
+$browser = chromium --new-window --ozone-platform=wayland
+$music = cider
+$passwordManager = 1password --ozone-platform=x11
+$messenger = signal-desktop
+$webapp = $browser --app
+
+# Use defaults Omarchy defaults
+source = ~/.local/share/omarchy/default/hypr/autostart.conf
+source = ~/.local/share/omarchy/default/hypr/bindings.conf
+source = ~/.local/share/omarchy/default/hypr/envs.conf
+source = ~/.local/share/omarchy/default/hypr/looknfeel.conf
+source = ~/.local/share/omarchy/default/hypr/input.conf
+source = ~/.local/share/omarchy/default/hypr/windows.conf
+source = ~/.config/omarchy/current/theme/hyprland.conf
+
+# Extra autostart processes (uncomment to run Dropbox)
+# exec-once = dropbox-cli start
+
+# Extra env variables
+env = GDK_SCALE,2 # Change to 1 if on a 1x display
+
+# Extra bindings
+bind = SUPER, A, exec, $webapp="https://chatgpt.com"
+bind = SUPER SHIFT, A, exec, $webapp="https://grok.com"
+bind = SUPER, C, exec, $webapp="https://app.hey.com/calendar/weeks/"
+bind = SUPER, E, exec, $webapp="https://app.hey.com"
+bind = SUPER, Y, exec, $webapp="https://youtube.com/"
+bind = SUPER SHIFT, G, exec, $webapp="https://web.whatsapp.com/"
+bind = SUPER ALT, G, exec, $webapp="https://messages.google.com/web/conversations"
+bind = SUPER, X, exec, $webapp="https://x.com/"
+bind = SUPER SHIFT, X, exec, $webapp="https://x.com/compose/post"
+bind = CTRL SHIFT, 2, exec, sh -c "/home/sasha/.local/bin/trex"
+bind = CTRL SHIFT, 3, exec, hyprshot -m active -m output
+bind = CTRL SHIFT, 4, exec, hyprshot -m region
+
+# Control your input devices
+# See https://wiki.hypr.land/Configuring/Variables/#input
+input {
+  # Use multiple keyboard layouts and switch between them with Alt + Space
+  # kb_layout = us,dk
+  # kb_options = compose:caps,grp:alt_space_toggle
+
+  # Change speed of keyboard repeat
+  repeat_rate = 40
+  repeat_delay = 300
+
+  # Increase sensitity for mouse/trackpack (default: 0)
+  # sensitivity = 0.35
+
+  touchpad {
+    # Use natural (inverse) scrolling
+    natural_scroll = true
+
+    # Use two-finger clicks for right-click instead of lower-right corner
+    clickfinger_behavior = true
+
+    # Control the speed of your scrolling
+    scroll_factor = 0.4
+  }
+}
+
+# Scroll faster in the terminal
+windowrule = scrolltouchpad 1.5, class:Alacritty
+
+# Leader Key System - Added by install script
+# Hyprland Leader Key Configuration Example
+# Add this to your ~/.config/hypr/hyprland.conf
+
+# =============================================================================
+# LEADER KEY SYSTEM - F13 as leader
+# =============================================================================
+
+# F13 enters leader mode
+bind = , F13, submap, leader
+
+# Leader mode submaps
+submap = leader
+
+# Browser submenu - F13 → B
+bind = , B, submap, browser
+
+# Apps submenu - F13 → A  
+bind = , A, submap, apps
+
+# Window management - F13 → W
+bind = , W, submap, window
+
+# System actions - F13 → S
+bind = , S, submap, system
+
+# Exit leader mode
+bind = , escape, submap, reset
+bind = CTRL, G, submap, reset
+bind = , F13, submap, reset  # Press F13 again to exit
+
+submap = reset
+
+# =============================================================================
+# BROWSER SUBMENU (F13 → B → ...)
+# =============================================================================
+submap = browser
+
+# F13 → B → C = Chrome
+bind = , C, exec, google-chrome-stable
+bind = , C, submap, reset
+
+# F13 → B → F = Firefox  
+bind = , F, exec, firefox
+bind = , F, submap, reset
+
+# F13 → B → E = Edge
+bind = , E, exec, microsoft-edge-stable
+bind = , E, submap, reset
+
+# F13 → B → S = Safari (if you have it via some method)
+bind = , S, exec, safari  # or whatever command you use
+bind = , S, submap, reset
+
+# Exit browser submenu
+bind = , escape, submap, reset
+bind = CTRL, G, submap, reset
+bind = , F13, submap, reset
+
+submap = reset
+
+# =============================================================================
+# APPS SUBMENU (F13 → A → ...)
+# =============================================================================
+submap = apps
+
+# F13 → A → T = Terminal
+bind = , T, exec, ghostty
+bind = , T, submap, reset
+
+# F13 → A → V = VS Code
+bind = , V, exec, code
+bind = , V, submap, reset
+
+# F13 → A → Z = Zed
+bind = , Z, exec, zed
+bind = , Z, submap, reset
+
+# F13 → A → F = File Manager
+bind = , F, exec, nautilus
+bind = , F, submap, reset
+
+# F13 → A → S = Slack
+bind = , S, exec, slack
+bind = , S, submap, reset
+
+# F13 → A → D = Discord
+bind = , D, exec, discord
+bind = , D, submap, reset
+
+# Exit apps submenu
+bind = , escape, submap, reset
+bind = CTRL, G, submap, reset
+bind = , F13, submap, reset
+
+submap = reset
+
+# =============================================================================
+# WINDOW MANAGEMENT (F13 → W → ...)
+# =============================================================================
+submap = window
+
+# F13 → W → F = Toggle floating
+bind = , F, togglefloating
+bind = , F, submap, reset
+
+# F13 → W → M = Toggle fullscreen
+bind = , M, fullscreen
+bind = , M, submap, reset
+
+# F13 → W → Q = Close window
+bind = , Q, killactive
+bind = , Q, submap, reset
+
+# F13 → W → H = Move to left workspace
+bind = , H, movetoworkspace, -1
+bind = , H, submap, reset
+
+# F13 → W → L = Move to right workspace  
+bind = , L, movetoworkspace, +1
+bind = , L, submap, reset
+
+# Exit window submenu
+bind = , escape, submap, reset
+bind = CTRL, G, submap, reset
+bind = , F13, submap, reset
+
+submap = reset
+
+# =============================================================================
+# SYSTEM ACTIONS (F13 → S → ...)
+# =============================================================================
+submap = system
+
+# F13 → S → L = Lock screen
+bind = , L, exec, hyprlock
+bind = , L, submap, reset
+
+# F13 → S → S = Screenshot selection
+bind = , S, exec, grim -g "$(slurp)" ~/Pictures/Screenshots/$(date +'%F-%T.png')
+bind = , S, submap, reset
+
+# F13 → S → F = Screenshot full screen
+bind = , F, exec, grim ~/Pictures/Screenshots/full-$(date +'%F-%T.png')
+bind = , F, submap, reset
+
+# F13 → S → R = Reload Hyprland config
+bind = , R, exec, hyprctl reload
+bind = , R, submap, reset
+
+# F13 → S → Q = Logout
+bind = , Q, exit
+bind = , Q, submap, reset
+
+# Exit system submenu
+bind = , escape, submap, reset
+bind = CTRL, G, submap, reset
+bind = , F13, submap, reset
+
+submap = reset
+
+# =============================================================================
+# OPTIONAL: Status indicator for waybar
+# =============================================================================
+# Add this to your waybar config.jsonc:
+# "hyprland/submap": {
+#     "format": "✨ {}",
+#     "max-length": 10,
+#     "tooltip": false
+# }
