@@ -9,12 +9,36 @@
       "username": "alex",
       "projects": [
         {
-          "paths": ["~/Documents"]
+          "paths": [
+            "/home/deployer"
+          ]
         },
         {
-          "paths": ["~/Documents/docker"]
+          "paths": [
+            "~/Documents"
+          ]
+        },
+        {
+          "paths": [
+            "~/Documents/docker"
+          ]
         }
       ]
+    },
+    {
+      "host": "10.10.10.137",
+      "username": "sasha",
+      "projects": [
+        {
+          "paths": [
+            "/home/sasha/.local"
+          ]
+        }
+      ]
+    },
+    {
+      "host": "app.getalchemist.io",
+      "projects": []
     }
   ],
   "agent": {

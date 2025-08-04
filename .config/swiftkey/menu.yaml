@@ -15,6 +15,9 @@
   title: Tower
   action: launch:///Applications/Tower.app
   hotkey: ctrl+cmd+g
+- key: c
+  title: Google Chrome
+  action: launch:///Applications/Google Chrome.app
 - key: m
   title: Messaging
   icon: message.fill
@@ -38,9 +41,6 @@
   - key: s
     title: Safari
     action: launch:///Applications/Safari.app
-  - key: c
-    title: Google Chrome
-    action: launch:///Applications/Google Chrome.app
   - key: f
     title: Firefox
     action: launch:///Applications/Firefox.app
@@ -54,9 +54,6 @@
   - key: c
     title: Calendar
     action: open://https://c.t1a.com
-- key: c
-  title: Confetti
-  action: open://raycast://confetti
 - key: a
   title: Applications
   icon: app.fill
