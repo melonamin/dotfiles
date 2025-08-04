@@ -1,6 +1,7 @@
 font-family = "JetBrains Mono"
-font-size = 15
-theme = "Espresso"
+font-size = 12
+# Theme managed by Omarchy - comment out to use Omarchy themes
+theme = "tokyonight-storm"
 link-url = false
 shell-integration = detect
 term = xterm-256color
@@ -37,11 +38,15 @@ mouse-hide-while-typing = true
 bold-is-bright = true
 mouse-shift-capture = never
 
-background = #383838
-selection-background = #5b5b5b
-selection-foreground = #dfdfff
-palette = 4=#2774C7
-palette = 8=#6A6A6A
+# Custom color overrides (commented out to use Omarchy themes)
+# background = #383838
+# selection-background = #5b5b5b
+# selection-foreground = #dfdfff
+# palette = 4=#2774C7
+# palette = 8=#6A6A6A
+
+# Import Omarchy theme
+#config-file = ~/.config/omarchy/current/theme/ghostty
 
 keybind = super+f=write_screen_file:open
 keybind = shift+enter=text:\n

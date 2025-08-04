@@ -8,14 +8,14 @@
     "hyprland/workspaces"
   ],
   "modules-center": [
-    "clock"
+    "clock",
+    "custom/update"
   ],
   "modules-right": [
     "custom/weather",
     "pulseaudio",
     "cpu",
-    "memory",
-    "battery"
+    "memory"
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -43,7 +43,7 @@
   },
   "cpu": {
     "interval": 1,
-    "format": "󰍛 {usage}%",
+    "format": "󰍛 {usage:>2}%",
     "tooltip-format": "CPU Usage: {usage}%\nLoad Average: {load}",
     "on-click": "alacritty -e btop"
   },
@@ -52,6 +52,21 @@
     "format": "󰾆 {percentage}%",
     "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G",
     "on-click": "alacritty -e btop"
+  },
+  "custom/media": {
+    "exec": "~/.config/waybar/scripts/media.sh",
+    "hide-empty-text": true,
+    "interval": 1,
+    "format": "󰎈 {}",
+    "max-length": 40,
+    "tooltip": true,
+    "return-type": "json"
+  },
+  "custom/update": {
+    "format": "",
+    "exec": "~/.local/share/omarchy/bin/omarchy-update-available",
+    "on-click": "alacritty --class Omarchy --title Omarchy -e omarchy-update",
+    "interval": 3600
   },
   "custom/weather": {
     "exec": "curl -s 'https://wttr.in/Sterling,VA?format=%t' | sed 's/+//g'",
@@ -63,28 +78,6 @@
     "format": "{:%A %H:%M}",
     "format-alt": "{:%d %B W%V %Y}",
     "tooltip": false
-  },
-  "battery": {
-    "format": "{capacity}% {icon}",
-    "format-discharging": "{icon}",
-    "format-charging":    "{icon}",
-    "format-plugged":     "",
-    "format-icons": {
-      "charging": [
-        "󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"
-      ],
-      "default": [
-        "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
-      ]
-    },
-    "format-full": "󰂅",
-    "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
-    "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
-    "interval": 5,
-    "states": {
-      "warning": 20,
-      "critical": 10
-    }
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",

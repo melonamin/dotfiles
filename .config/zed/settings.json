@@ -24,8 +24,7 @@
     "default_model": {
       "provider": "google",
       "model": "gemini-2.5-pro-preview-03-25"
-    },
-    "version": "2"
+    }
   },
   "tabs": {
     "git_status": true,
@@ -41,13 +40,13 @@
   },
   "soft_wrap": "editor_width",
   "preferred_line_length": 140,
-  "theme": "Catppuccin Latte - No Italics",
+  "theme": "Catppuccin Frappé - No Italics",
   "buffer_font_family": "Victor Mono",
   "buffer_font_weight": 400,
   "buffer_line_height": "comfortable",
   "ui_font_family": "Zed Plex Sans",
-  "ui_font_size": 14,
-  "buffer_font_size": null,
+  "ui_font_size": 16,
+  "buffer_font_size": 16,
   "show_edit_predictions": true,
   "edit_predictions": {
     "mode": "subtle"
@@ -137,6 +136,7 @@
   },
   "context_servers": {
     "mcp-server-brave-search": {
+      "source": "extension",
       "settings": {
         "brave_api_key": ""
       }

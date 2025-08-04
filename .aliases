@@ -115,8 +115,6 @@ alias cloc="tokei --sort code"
 
 alias top="btop"
 
-alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
-
 alias v='fzf --preview "bat --color=always {}"'
 
 alias mr='mise run'

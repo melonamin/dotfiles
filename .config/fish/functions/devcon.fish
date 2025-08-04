@@ -106,16 +106,3 @@ end
 function dcexec --description "Execute a command in a container with a specific template"
     devcon exec $argv
 end
-function dclaude --description "Work with Claude container"
-    if test (count $argv) -eq 0
-        devcon up claude claude
-    else if test "$argv[1]" = "up"
-        set -e argv[1]
-        devcon up claude $argv
-    else if test "$argv[1]" = "exec"
-        set -e argv[1]
-        devcon exec claude $argv
-    else
-        devcon exec claude $argv
-    end
-end
