@@ -90,7 +90,7 @@
     "enabled": true,
     "coloring": "indent_aware"
   },
-  "vim_mode": false,
+  "vim_mode": true,
   "inlay_hints": { "enabled": true },
   "scrollbar": { "show": "never" },
   "languages": {

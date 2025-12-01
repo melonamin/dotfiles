@@ -22,6 +22,7 @@
 - If there are uncommitted changes or untracked files when starting work, YOU MUST STOP and ask how to handle them. Suggest committing existing work first.
 - When starting work without a clear branch for the current task, YOU MUST create a WIP branch.
 - YOU MUST commit frequently throughout the development process.
+- NEVER add Claude Code credits, footers, or "Generated with" messages to git commits. Commit messages should contain only the work description.
 
 # Getting help
 
