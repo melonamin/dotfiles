@@ -40,3 +40,9 @@ source /Users/alex/.config/broot/launcher/bash/br
 source <(pkgx --shellcode)  #docs.pkgx.sh/shellcode
 
 source ~/.extra
+
+. "$HOME/.atuin/bin/env"
+
+eval "$(atuin init zsh)"
+
+source /home/sasha/.config/broot/launcher/bash/br

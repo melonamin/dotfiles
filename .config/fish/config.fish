@@ -9,10 +9,18 @@ end
 
 # Load the shell dotfiles, and then some:
 # * ~/.path can be used to extend `$PATH`.
-# * ~/.extra can be used for other settings you don’t want to commit.
+# * ~/.extra can be used for other settings you don't want to commit.
 for file in ~/.{path,bash_prompt,exports,aliases,functions,extra}
     [ -r "$file" ] && [ -f "$file" ] && source "$file"
 end
+
+# Load uwsm defaults (TERMINAL, EDITOR overrides)
+[ -r ~/.config/uwsm/default ] && source ~/.config/uwsm/default
+
+# Omarchy environment variables
+set -gx OMARCHY_PATH $HOME/.local/share/omarchy
+set -gx SUDO_EDITOR "$EDITOR"
+set -gx BAT_THEME ansi
 
 starship init fish | source
 atuin init fish | source
@@ -27,7 +35,6 @@ end
 set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
-atuin init fish | source
 zoxide init --cmd cd fish | source
 ~/.local/bin/mise activate fish | source
 
@@ -44,8 +51,8 @@ end
 # This won't be added again if you remove it.
 source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 
-
+# OpenHands CLI aliases
+alias openhands="uvx --python 3.12 --from openhands-ai openhands"
+alias oh="uvx --python 3.12 --from openhands-ai openhands"
 # opencode
-fish_add_path /Users/alex/.opencode/bin
-
-source ~/Developer/.bin/dev-helpers.fish
+fish_add_path /home/sasha/.opencode/bin

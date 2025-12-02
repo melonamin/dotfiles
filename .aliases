@@ -120,5 +120,8 @@ alias v='fzf --preview "bat --color=always {}"'
 alias mr='mise run'
 
 alias dclaude="claude --dangerously-skip-permissions"
-alias dcodex="codex --full-auto -c model_reasoning_effort=high"
+alias dcodex="codex -m gpt-5.1-codex --full-auto -c model_reasoning_effort=high"
 alias ddcodex="codex -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox"
+
+# Review uncommitted changes with multiple providers
+alias mpt-review='mpt --git.diff --openai.enabled --google.enabled --anthropic.enabled --timeout=5m -p "Perform a comprehensive code review of these changes. Analyze the design patterns and architecture. Identify any security vulnerabilities or risks. Evaluate code readability, maintainability, and idiomatic usage. Suggest specific improvements where needed."'

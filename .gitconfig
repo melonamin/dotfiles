@@ -10,7 +10,7 @@
 	process = git-lfs filter-process
 	required = true
 [commit]
-	gpgsign = true
+	gpgsign = false
 [gpg]
 	program = /usr/local/MacGPG2/bin/gpg2
 	format = ssh
@@ -22,10 +22,10 @@
 [rerere]
 	enabled = 1
 [alias]
-        st = status
-        ci = commit
-        br = branch
-        co = checkout
+	st = status
+	ci = commit
+	br = branch
+	co = checkout
         df = diff
         lg = log -p
         lol = log --graph --decorate --pretty=oneline --abbrev-commit
@@ -64,4 +64,14 @@
             fi; \
         }; f"
 [gpg "ssh"]
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+	program = /opt/1Password/op-ssh-sign
+[pull]
+	rebase = true
+[init]
+	defaultBranch = master
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential

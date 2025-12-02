@@ -1,42 +1,47 @@
 # Make vim the default editor.
-export EDITOR='zed --wait';
+set -gx EDITOR 'zed --wait'
 
 # Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
-export PYTHONIOENCODING='UTF-8';
+set -gx PYTHONIOENCODING 'UTF-8'
 
 # Prefer US English and use UTF-8.
-export LANG='en_US.UTF-8';
-export LC_ALL='en_US.UTF-8';
+set -gx LANG 'en_US.UTF-8'
+set -gx LC_ALL 'en_US.UTF-8'
 
 # Highlight section titles in manual pages.
-#export LESS_TERMCAP_md="${yellow}";
+#set -gx LESS_TERMCAP_md "$yellow"
 
-# Don’t clear the screen after quitting a manual page.
-export MANPAGER='less -X';
+# Don't clear the screen after quitting a manual page.
+set -gx MANPAGER 'less -X'
 
 # Avoid issues with `gpg` as installed via Homebrew.
 # https://stackoverflow.com/a/42265848/96656
-export GPG_TTY=$(tty);
+set -gx GPG_TTY (tty)
 
 # Move python cache out of project folder
-export PYTHONPYCACHEPREFIX="$HOME/.cache/Python"
+set -gx PYTHONPYCACHEPREFIX "$HOME/.cache/Python"
 
 # Set config dir
-export XDG_CONFIG_HOME="$HOME/.config"
+set -gx XDG_CONFIG_HOME "$HOME/.config"
 
 # Alchemist
-export ALC_HOME="/Users/alex/Developer/t1a/alchemist/"
+set -gx ALC_HOME "/Users/alex/Developer/t1a/alchemist/"
 
 # OpenAudible
-export OPENAUDIBLE_HOME="/Volumes/Books/OpenAudible"
+set -gx OPENAUDIBLE_HOME "/Volumes/Books/OpenAudible"
 
 # Brew
-export HOMEBREW_NO_AUTO_UPDATE=1
+set -gx HOMEBREW_NO_AUTO_UPDATE 1
 
 # Claude Code
-export ENABLE_BACKGROUND_TASKS=1
-export CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1
+set -gx ENABLE_BACKGROUND_TASKS 1
+set -gx CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR 1
+
+set -gx PEEKABOO_AI_PROVIDERS "openai/gpt-4o"
 
 # mpt
-export GOOGLE_MODEL=gemini-3-pro
-export OPENAI_MODEL=gpt-5.1
+set -gx GOOGLE_MODEL gemini-3-pro
+set -gx OPENAI_MODEL gpt-5.1
+
+set -gx SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
+set -gx MISE_ENV_FILE .env
