@@ -55,3 +55,5 @@ alias openhands="uvx --python 3.12 --from openhands-ai openhands"
 alias oh="uvx --python 3.12 --from openhands-ai openhands"
 # opencode
 fish_add_path /home/sasha/.opencode/bin
+
+source ~/Developer/.bin/dev-helpers.fish
