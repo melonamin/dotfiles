@@ -22,7 +22,6 @@ set -gx OMARCHY_PATH $HOME/.local/share/omarchy
 set -gx SUDO_EDITOR "$EDITOR"
 set -gx BAT_THEME ansi
 
-starship init fish | source
 atuin init fish | source
 
 ~/.local/bin/mise activate fish | source
