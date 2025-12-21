@@ -24,14 +24,21 @@ set -gx PYTHONPYCACHEPREFIX "$HOME/.cache/Python"
 # Set config dir
 set -gx XDG_CONFIG_HOME "$HOME/.config"
 
-# Alchemist
-set -gx ALC_HOME "/Users/alex/Developer/t1a/alchemist/"
-
-# OpenAudible
-set -gx OPENAUDIBLE_HOME "/Volumes/Books/OpenAudible"
-
-# Brew
-set -gx HOMEBREW_NO_AUTO_UPDATE 1
+# Platform-specific paths
+switch (uname)
+    case Darwin
+        # Alchemist (macOS only)
+        set -gx ALC_HOME "$HOME/Developer/t1a/alchemist/"
+        # OpenAudible (macOS only - external volume)
+        set -gx OPENAUDIBLE_HOME "/Volumes/Books/OpenAudible"
+        # Brew
+        set -gx HOMEBREW_NO_AUTO_UPDATE 1
+    case Linux
+        # Linux equivalents if needed
+        if test -d "$HOME/Developer/t1a/alchemist"
+            set -gx ALC_HOME "$HOME/Developer/t1a/alchemist/"
+        end
+end
 
 # Claude Code
 set -gx ENABLE_BACKGROUND_TASKS 1

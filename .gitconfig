@@ -12,7 +12,6 @@
 [commit]
 	gpgsign = false
 [gpg]
-	program = /usr/local/MacGPG2/bin/gpg2
 	format = ssh
 [mergetool]
 	keepBackup = false
