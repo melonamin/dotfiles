@@ -5,6 +5,8 @@ search_mode = "fuzzy"
 filter_mode = "global"
 show_preview = true
 style = "compact"
+inline_height = 20
+show_help = false
 
 # Filter sensitive commands from history
 history_filter = [

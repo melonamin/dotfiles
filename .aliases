@@ -19,6 +19,9 @@ alias g="git"
 # Modern CLI replacements
 alias ls='eza'
 alias la='ls -la'
+alias ll='eza -l --git --icons'
+alias lt='eza --tree --level=2'
+alias lta='eza --tree --level=2 -a'
 alias cat='bat -p'
 alias top='btop'
 alias v='sk --preview "bat --color=always {}"'

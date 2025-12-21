@@ -39,6 +39,8 @@
         lol = log --graph --decorate --pretty=oneline --abbrev-commit
         lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
         ls = ls-files
+        graph = log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset' --all
+        today = log --since='6am' --oneline --author='Alex'
         # generate comment
         llm = "!f() { \
             if git diff --quiet $1; then \
@@ -77,6 +79,9 @@
 	rebase = true
 [init]
 	defaultBranch = master
+[maintenance]
+	auto = true
+	strategy = incremental
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential

@@ -1,0 +1,75 @@
+# Global mise tasks available in all projects
+# Run with: mise run <task> or mr <task>
+
+[tasks.new-py]
+description = "Create a new Python project"
+run = """
+#!/usr/bin/env bash
+set -e
+name=${1:-myproject}
+mkdir -p "$name"
+cd "$name"
+uv init
+uv add pytest ruff
+echo "Created Python project: $name"
+"""
+
+[tasks.new-ts]
+description = "Create a new TypeScript project"
+run = """
+#!/usr/bin/env bash
+set -e
+name=${1:-myproject}
+mkdir -p "$name"
+cd "$name"
+bun init -y
+bun add -d typescript @types/bun
+echo "Created TypeScript project: $name"
+"""
+
+[tasks.new-go]
+description = "Create a new Go project"
+run = """
+#!/usr/bin/env bash
+set -e
+name=${1:-myproject}
+mkdir -p "$name"
+cd "$name"
+go mod init "$name"
+cat > main.go << 'EOF'
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, World!")
+}
+EOF
+echo "Created Go project: $name"
+"""
+
+[tasks.ports]
+description = "Show processes listening on ports"
+run = "lsof -iTCP -sTCP:LISTEN -P -n"
+
+[tasks.cleanup]
+description = "Clean common build artifacts and caches"
+run = """
+#!/usr/bin/env bash
+echo "Cleaning build artifacts..."
+find . -type d -name "node_modules" -prune -exec rm -rf {} \; 2>/dev/null || true
+find . -type d -name "__pycache__" -prune -exec rm -rf {} \; 2>/dev/null || true
+find . -type d -name ".pytest_cache" -prune -exec rm -rf {} \; 2>/dev/null || true
+find . -type d -name "dist" -prune -exec rm -rf {} \; 2>/dev/null || true
+find . -type d -name "build" -prune -exec rm -rf {} \; 2>/dev/null || true
+find . -type f -name "*.pyc" -delete 2>/dev/null || true
+echo "Done!"
+"""
+
+[tasks.sizes]
+description = "Show directory sizes sorted by size"
+run = "dust -d 1"
+
+[tasks.docker-clean]
+description = "Clean unused Docker resources"
+run = "docker system prune -af --volumes"
