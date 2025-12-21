@@ -9,6 +9,7 @@ SETUVAR _fisher_plugins:jorgebucaran/fisher\x1erstacruz/fish\x2dasdf\x1eilancosm
 SETUVAR _fisher_rstacruz_2F_fish_2D_asdf_files:\x7e/\x2econfig/fish/conf\x2ed/asdf\x2efish\x1e\x7e/\x2econfig/fish/completions/asdf\x2efish
 SETUVAR _fisher_upgraded_to_4_4:\x1d
 SETUVAR _tide_left_items:pwd\x1egit\x1echaracter
+SETUVAR _tide_prompt_111785:\x1b\x5bm\x1b\x5b49m\x40PWD\x40\x1b\x5b32m\x20\u03bb\x1b\x5bm\x20\x1e\x1b\x5bm
 SETUVAR _tide_prompt_8636:\x1b\x5bm\x1b\x5b49m\x40PWD\x40\x1b\x5b32m\x20\u03bb\x1b\x5bm\x20\x1e\x1b\x5bm
 SETUVAR _tide_prompt_91357:\x1b\x5bm\x1b\x5b49m\x40PWD\x40\x1b\x5b32m\x20\u03bb\x1b\x5bm\x20\x1e\x1b\x5bm
 SETUVAR _tide_right_items:\x1d
