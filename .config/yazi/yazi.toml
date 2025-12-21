@@ -1,0 +1,122 @@
+# Yazi configuration
+# Docs: https://yazi-rs.github.io/docs/configuration/yazi
+
+[manager]
+ratio = [1, 3, 4]
+sort_by = "natural"
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+linemode = "size"
+show_hidden = false
+show_symlink = true
+
+[preview]
+tab_size = 2
+max_width = 1000
+max_height = 1000
+image_filter = "triangle"
+image_quality = 75
+sixel_fraction = 15
+ueberzug_scale = 1
+ueberzug_offset = [0, 0, 0, 0]
+
+[opener]
+edit = [
+  { run = '${EDITOR:-nvim} "$@"', block = true, for = "unix" },
+]
+open = [
+  { run = 'open "$@"', desc = "Open", for = "macos" },
+  { run = 'xdg-open "$@"', desc = "Open", for = "linux" },
+]
+reveal = [
+  { run = 'open -R "$@"', desc = "Reveal in Finder", for = "macos" },
+  { run = 'nautilus --select "$@"', desc = "Reveal in Files", for = "linux" },
+]
+
+[open]
+rules = [
+  # Folder
+  { name = "*/", use = ["edit", "open", "reveal"] },
+
+  # Text/code files
+  { mime = "text/*", use = ["edit", "reveal"] },
+  { mime = "application/json", use = ["edit", "reveal"] },
+  { mime = "application/javascript", use = ["edit", "reveal"] },
+  { mime = "application/x-sh", use = ["edit", "reveal"] },
+
+  # Images
+  { mime = "image/*", use = ["open", "reveal"] },
+
+  # Videos/Audio
+  { mime = "video/*", use = ["open", "reveal"] },
+  { mime = "audio/*", use = ["open", "reveal"] },
+
+  # PDFs
+  { mime = "application/pdf", use = ["open", "reveal"] },
+
+  # Archives
+  { mime = "application/zip", use = ["reveal"] },
+  { mime = "application/gzip", use = ["reveal"] },
+  { mime = "application/x-tar", use = ["reveal"] },
+  { mime = "application/x-7z-compressed", use = ["reveal"] },
+
+  # Fallback
+  { name = "*", use = ["open", "reveal"] },
+]
+
+[tasks]
+micro_workers = 10
+macro_workers = 25
+bizarre_retry = 5
+image_alloc = 536870912  # 512MB
+image_bound = [0, 0]
+
+[plugin]
+preloaders = [
+  { name = "*", cond = "!mime", run = "mime", multi = true, prio = "high" },
+  { mime = "image/*", run = "image" },
+  { mime = "video/*", run = "video" },
+  { mime = "application/pdf", run = "pdf" },
+]
+previewers = [
+  { name = "*/", run = "folder", sync = true },
+  { mime = "text/*", run = "code" },
+  { mime = "*/xml", run = "code" },
+  { mime = "*/javascript", run = "code" },
+  { mime = "*/x-wine-extension-ini", run = "code" },
+  { mime = "application/json", run = "json" },
+  { mime = "image/*", run = "image" },
+  { mime = "video/*", run = "video" },
+  { mime = "application/pdf", run = "pdf" },
+  { mime = "application/zip", run = "archive" },
+  { mime = "application/gzip", run = "archive" },
+  { mime = "application/x-tar", run = "archive" },
+  { mime = "application/x-bzip", run = "archive" },
+  { mime = "application/x-bzip2", run = "archive" },
+  { mime = "application/x-7z-compressed", run = "archive" },
+  { mime = "application/x-rar", run = "archive" },
+  { mime = "application/xz", run = "archive" },
+  { name = "*", run = "file" },
+]
+
+[input]
+cd_title = "Change directory:"
+create_title = "Create:"
+rename_title = "Rename:"
+trash_title = "Move {n} file(s) to trash? (y/N)"
+delete_title = "Delete {n} file(s) permanently? (y/N)"
+filter_title = "Filter:"
+find_title = ["Find next:", "Find previous:"]
+search_title = "Search via {n}:"
+shell_title = ["Shell:", "Shell (block):"]
+overwrite_title = "Overwrite file?"
+quit_title = "Quit? (y/N)"
+
+[select]
+open_title = "Open with:"
+open_origin = "hovered"
+open_offset = [0, 1, 50, 7]
+
+[log]
+enabled = false
