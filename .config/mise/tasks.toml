@@ -50,7 +50,14 @@ echo "Created Go project: $name"
 
 [tasks.ports]
 description = "Show processes listening on ports"
-run = "lsof -iTCP -sTCP:LISTEN -P -n"
+run = """
+#!/usr/bin/env bash
+if [[ "$(uname)" == "Darwin" ]]; then
+    lsof -iTCP -sTCP:LISTEN -P -n
+else
+    ss -tlnp 2>/dev/null || netstat -tlnp
+fi
+"""
 
 [tasks.cleanup]
 description = "Clean common build artifacts and caches"
