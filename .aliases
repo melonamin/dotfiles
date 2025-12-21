@@ -115,7 +115,10 @@ alias cloc="tokei --sort code"
 
 alias top="btop"
 
-alias v='fzf --preview "bat --color=always {}"'
+alias v='sk --preview "bat --color=always {}"'
+
+# Use fd instead of find
+alias find='fd'
 
 alias mr='mise run'
 

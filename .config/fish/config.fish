@@ -35,7 +35,6 @@ set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
 zoxide init --cmd cd fish | source
-~/.local/bin/mise activate fish | source
 
 function y
     set tmp (mktemp -t "yazi-cwd.XXXXXX")
@@ -53,7 +52,5 @@ source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 # OpenHands CLI aliases
 alias openhands="uvx --python 3.12 --from openhands-ai openhands"
 alias oh="uvx --python 3.12 --from openhands-ai openhands"
-# opencode
-fish_add_path /home/sasha/.opencode/bin
-
-source ~/Developer/.bin/dev-helpers.fish
+# Dev helpers (if exists)
+test -f ~/Developer/.bin/dev-helpers.fish && source ~/Developer/.bin/dev-helpers.fish

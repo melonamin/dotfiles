@@ -45,3 +45,6 @@ set -gx OPENAI_MODEL gpt-5.1
 
 set -gx SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
 set -gx MISE_ENV_FILE .env
+
+# Ripgrep config
+set -gx RIPGREP_CONFIG_PATH "$HOME/.config/ripgrep/config"
