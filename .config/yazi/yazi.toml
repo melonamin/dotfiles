@@ -1,7 +1,7 @@
 # Yazi configuration
 # Docs: https://yazi-rs.github.io/docs/configuration/yazi
 
-[manager]
+[mgr]
 ratio = [1, 3, 4]
 sort_by = "natural"
 sort_sensitive = false
@@ -102,7 +102,7 @@ previewers = [
 
 [input]
 cd_title = "Change directory:"
-create_title = "Create:"
+create_title = ["Create:", "Create (dir):"]
 rename_title = "Rename:"
 trash_title = "Move {n} file(s) to trash? (y/N)"
 delete_title = "Delete {n} file(s) permanently? (y/N)"

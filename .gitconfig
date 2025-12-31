@@ -22,7 +22,7 @@
 	diffFilter = delta --color-only
 [delta]
 	navigate = true
-	side-by-side = true
+	side-by-side = false
 	line-numbers = true
 [diff]
 	tool = Kaleidoscope
