@@ -24,7 +24,7 @@ set -gx BAT_THEME ansi
 
 atuin init fish | source
 
-~/.local/bin/mise activate fish | source
+mise activate fish | source
 
 function manz
     man $argv | col -b | zed -
