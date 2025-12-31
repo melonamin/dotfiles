@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Developer folder sync script
+# Clones missing repos from GitHub (user + orgs)
+# Usage: dev-sync [--pull] [--org ORG] [--dry-run]
+
+DEV_ROOT="${DEV_ROOT:-$HOME/Developer}"
+
+# Fetch user and orgs dynamically from gh
+if ! command -v gh &> /dev/null; then
+    echo "Error: gh CLI is required but not installed."
+    exit 1
+fi
+
+if ! gh auth status &> /dev/null; then
+    echo "Error: gh CLI is not authenticated. Run 'gh auth login' first."
+    exit 1
+fi
+
+GITHUB_USER=$(gh api user --jq '.login')
+mapfile -t ORGS < <(gh api user/orgs --jq '.[].login')
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Flags
+DO_PULL=false
+DRY_RUN=false
+FILTER_ORG=""
+
+usage() {
+    echo "Usage: dev-sync [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  --pull      Also pull existing repos"
+    echo "  --org ORG   Only sync specific org (or 'me' for personal)"
+    echo "  --dry-run   Show what would be done without doing it"
+    echo "  --help      Show this help"
+    echo ""
+    echo "Environment:"
+    echo "  DEV_ROOT    Base directory (default: ~/Developer)"
+}
+
+log_info()  { echo -e "${BLUE}[INFO]${NC} $*"; }
+log_ok()    { echo -e "${GREEN}[OK]${NC} $*"; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
+
+clone_repo() {
+    local repo="$1"  # format: owner/name
+    local dest="$DEV_ROOT/github.com/$repo"
+
+    if [[ -d "$dest" ]]; then
+        if [[ "$DO_PULL" == true ]]; then
+            log_info "Pulling $repo"
+            if [[ "$DRY_RUN" == false ]]; then
+                git -C "$dest" pull --ff-only 2>/dev/null || log_warn "Pull failed for $repo"
+            fi
+        else
+            echo -e "  ${GREEN}✓${NC} $repo"
+        fi
+    else
+        log_info "Cloning $repo"
+        if [[ "$DRY_RUN" == false ]]; then
+            mkdir -p "$(dirname "$dest")"
+            # Use SSH explicitly (git@github.com:owner/repo.git)
+            if git clone --quiet "git@github.com:${repo}.git" "$dest" 2>/dev/null; then
+                log_ok "Cloned $repo"
+            else
+                log_error "Failed to clone $repo"
+            fi
+        fi
+    fi
+}
+
+sync_owner() {
+    local owner="$1"
+    local is_org="${2:-false}"
+
+    echo ""
+    echo -e "${BLUE}━━━ $owner ━━━${NC}"
+
+    local repos
+    if [[ "$is_org" == true ]]; then
+        repos=$(gh repo list "$owner" --limit 200 --json nameWithOwner --jq '.[].nameWithOwner' 2>/dev/null || echo "")
+    else
+        repos=$(gh repo list "$owner" --limit 200 --json nameWithOwner --jq '.[].nameWithOwner' 2>/dev/null || echo "")
+    fi
+
+    if [[ -z "$repos" ]]; then
+        log_warn "No repos found or no access to $owner"
+        return
+    fi
+
+    local count=0
+    while IFS= read -r repo; do
+        clone_repo "$repo"
+        count=$((count + 1))
+    done <<< "$repos"
+
+    log_info "Processed $count repos from $owner"
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --pull)
+            DO_PULL=true
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --org)
+            FILTER_ORG="$2"
+            shift 2
+            ;;
+        --help)
+            usage
+            exit 0
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# Main
+echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║       Developer Folder Sync            ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+echo ""
+echo "Root: $DEV_ROOT"
+[[ "$DRY_RUN" == true ]] && echo -e "${YELLOW}DRY RUN MODE${NC}"
+[[ "$DO_PULL" == true ]] && echo "Will pull existing repos"
+
+# Sync personal repos
+if [[ -z "$FILTER_ORG" || "$FILTER_ORG" == "me" || "$FILTER_ORG" == "$GITHUB_USER" ]]; then
+    sync_owner "$GITHUB_USER" false
+fi
+
+# Sync org repos
+for org in "${ORGS[@]}"; do
+    if [[ -z "$FILTER_ORG" || "$FILTER_ORG" == "$org" ]]; then
+        sync_owner "$org" true
+    fi
+done
+
+echo ""
+echo -e "${GREEN}Done!${NC}"

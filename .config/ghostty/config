@@ -5,8 +5,11 @@ shell-integration = detect
 term = xterm-256color
 copy-on-select = true
 
-#keybind = global:cmd+ctrl+option+q=toggle_quick_terminal
-quick-terminal-animation-duration = 0.1
+keybind = global:super+ctrl+alt+shift+s=toggle_quick_terminal
+quick-terminal-animation-duration = 0
+quick-terminal-position = top
+quick-terminal-screen = main
+quick-terminal-size = 100%
 
 window-save-state = always
 window-new-tab-position = end
