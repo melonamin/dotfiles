@@ -2,6 +2,10 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {},
   "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(xcodebuild:*)",
@@ -33,10 +37,17 @@
     ]
   },
   "enabledPlugins": {
-    "example-skills@anthropic-agent-skills": true,
+    "pg@aiguide": true,
+    "commit-commands@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": true,
+    "ralph-wiggum@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true
+    "example-skills@anthropic-agent-skills": true
   },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
