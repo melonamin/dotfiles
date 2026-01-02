@@ -1,0 +1,13 @@
+#!/bin/bash
+# Open Perplexity search with a query from Walker dmenu
+
+query=$(walker -d -p " Search Perplexity..." --minwidth 600)
+
+# Exit if no query entered (user pressed Escape)
+[[ -z "$query" ]] && exit 0
+
+# URL-encode the query (using stdin to handle special characters safely)
+encoded=$(printf '%s' "$query" | uv run python -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read()))")
+
+# Open Perplexity in a new tab
+chromium --ozone-platform=wayland "https://www.perplexity.ai/search?q=${encoded}"

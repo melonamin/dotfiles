@@ -6,6 +6,7 @@ set -euo pipefail
 # Usage: dev-sync [--pull] [--org ORG] [--dry-run]
 
 DEV_ROOT="${DEV_ROOT:-$HOME/Developer}"
+IGNORE_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/dev-sync/ignore"
 
 # Fetch user and orgs dynamically from gh
 if ! command -v gh &> /dev/null; then
@@ -28,6 +29,37 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Load ignore list
+declare -A IGNORED_ORGS
+declare -A IGNORED_REPOS
+if [[ -f "$IGNORE_FILE" ]]; then
+    while IFS= read -r line; do
+        # Skip comments and empty lines
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+        line="${line%%#*}"  # Remove inline comments
+        line="${line%% }"   # Trim trailing space
+        if [[ "$line" == */* ]]; then
+            IGNORED_REPOS["$line"]=1
+        else
+            IGNORED_ORGS["$line"]=1
+        fi
+    done < "$IGNORE_FILE"
+fi
+
+is_ignored() {
+    local name="$1"
+    if [[ "$name" == */* ]]; then
+        # It's a repo (owner/name)
+        local owner="${name%%/*}"
+        [[ -n "${IGNORED_ORGS[$owner]:-}" ]] && return 0
+        [[ -n "${IGNORED_REPOS[$name]:-}" ]] && return 0
+    else
+        # It's an org/user
+        [[ -n "${IGNORED_ORGS[$name]:-}" ]] && return 0
+    fi
+    return 1
+}
+
 # Flags
 DO_PULL=false
 DRY_RUN=false
@@ -44,6 +76,9 @@ usage() {
     echo ""
     echo "Environment:"
     echo "  DEV_ROOT    Base directory (default: ~/Developer)"
+    echo ""
+    echo "Ignore file: $IGNORE_FILE"
+    echo "  One entry per line: org name or owner/repo"
 }
 
 log_info()  { echo -e "${BLUE}[INFO]${NC} $*"; }
@@ -54,6 +89,10 @@ log_error() { echo -e "${RED}[ERROR]${NC} $*"; }
 clone_repo() {
     local repo="$1"  # format: owner/name
     local dest="$DEV_ROOT/github.com/$repo"
+
+    if is_ignored "$repo"; then
+        return
+    fi
 
     if [[ -d "$dest" ]]; then
         if [[ "$DO_PULL" == true ]]; then
@@ -149,6 +188,9 @@ fi
 
 # Sync org repos
 for org in "${ORGS[@]}"; do
+    if is_ignored "$org"; then
+        continue
+    fi
     if [[ -z "$FILTER_ORG" || "$FILTER_ORG" == "$org" ]]; then
         sync_owner "$org" true
     fi
