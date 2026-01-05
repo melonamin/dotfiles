@@ -47,7 +47,7 @@ mouse-shift-capture = never
 # palette = 8=#6A6A6A
 
 # Import Omarchy theme
-config-file = ~/.config/omarchy/current/theme/ghostty.conf
+config-file = ?~/.config/omarchy/current/theme/ghostty.conf
 
 #keybind = super+f=write_screen_file:open
 #keybind = shift+enter=text:\n
