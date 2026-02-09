@@ -1,9 +1,19 @@
-## Instructions
+---
+paths:
+  - "**/*.js"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/package.json"
+---
 
-If not specified otherwise in project specific CLAUDE.MD use the instructions below
-When initializing a project CLAUDE.MD, don't duplicate this instructions
+# JavaScript / TypeScript Development
+
+If not specified otherwise in project-specific CLAUDE.md, use these defaults.
+When initializing a project CLAUDE.md, don't duplicate these instructions.
 
 ## Build Commands
+
 - Build: `yarn build`
 - Dev server: `yarn dev`
 - Typecheck: `yarn typecheck`
@@ -14,6 +24,7 @@ When initializing a project CLAUDE.MD, don't duplicate this instructions
 - Single test: `yarn test tests/integration/path/to/test.spec.ts`
 
 ## Code Style
+
 - TypeScript with strict typing and React
 - Use absolute imports with path aliases (@components, @utils, etc.)
 - Single quotes for strings with trailing commas
@@ -27,6 +38,7 @@ When initializing a project CLAUDE.MD, don't duplicate this instructions
 - Use descriptive variable names with camelCase
 
 ## Testing
+
 - Jest for unit tests (in tests/unit)
 - Playwright for integration tests (in tests/integration)
 - Use test fixtures from tests/integration/fixtures

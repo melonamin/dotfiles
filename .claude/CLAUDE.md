@@ -7,19 +7,13 @@
 
 # Philosophy
 
-## Core Beliefs
-
 - **Incremental progress over big bangs** - Small changes that compile and pass tests
 - **Learning from existing code** - Study and plan before implementing
 - **Pragmatic over dogmatic** - Adapt to project reality
 - **Clear intent over clever code** - Be boring and obvious
-
-## Simplicity
-
-- We prefer simple, clean, maintainable solutions over clever or complex ones, even if the latter are more concise or performant
+- We prefer simple, clean, maintainable solutions over clever or complex ones
 - **Single responsibility** per function/class
-- **Avoid premature abstractions**
-- If you need to explain it, it's too complex
+- **Avoid premature abstractions** - If you need to explain it, it's too complex
 
 # Writing Code
 
@@ -75,15 +69,10 @@
 - Use project's existing build system, test framework, and formatter/linter settings
 - Don't introduce new tools without strong justification
 
-# Specific Technologies
-
-- @~/.claude/docs/js.md
-
 # Tool Usage
 
 - You must use uv instead of pip
 - You must use just instead of make and other tools for this role
-
 
 # Important Reminders
 
