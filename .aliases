@@ -75,8 +75,10 @@ alias mr='mise run'
 
 # AI tools
 alias dclaude="claude --dangerously-skip-permissions"
-alias dcodex="codex -m gpt-5.1-codex --full-auto -c model_reasoning_effort=high"
+alias dcodex="codex -m gpt-5.2-codex --full-auto -c model_reasoning_effort=high"
 alias ddcodex="codex -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox"
+
+alias csession="uvx agent-session-viewer"
 
 # Review uncommitted changes with multiple providers
 alias mpt-review='mpt --git.diff --openai.enabled --google.enabled --anthropic.enabled --timeout=5m -p "Perform a comprehensive code review of these changes. Analyze the design patterns and architecture. Identify any security vulnerabilities or risks. Evaluate code readability, maintainability, and idiomatic usage. Suggest specific improvements where needed."'
@@ -84,3 +86,7 @@ alias mpt-review='mpt --git.diff --openai.enabled --google.enabled --anthropic.e
 alias n="nvim"
 alias lg="lazygit"
 alias ld="lazydocker"
+
+# Lumen diff shortcuts
+alias ldiff='lumen diff'
+alias ldiffb='lumen diff $(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed "s@^refs/remotes/origin/@@")..$(git rev-parse --abbrev-ref HEAD)'

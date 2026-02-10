@@ -16,3 +16,4 @@ abbr -a gswc 'git switch -c'
 # Common tools
 abbr -a k kubectl
 abbr -a dc docker-compose
+abbr -a devr 'dev-report ~/Developer'
