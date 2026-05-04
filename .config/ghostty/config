@@ -89,3 +89,6 @@ keybind = super+up=jump_to_prompt:-1
 keybind = super+down=jump_to_prompt:1
 keybind = super+home=scroll_to_top
 keybind = super+end=scroll_to_bottom
+
+# Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
+async-backend = epoll

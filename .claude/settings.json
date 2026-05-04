@@ -1,22 +1,18 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "env": {},
-  "includeCoAuthoredBy": false,
   "attribution": {
     "commit": "",
     "pr": ""
   },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
       "Bash(xcodebuild:*)",
       "Bash(rg:*)"
     ],
     "deny": [],
-    "defaultMode": "default"
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline-command.sh"
+    "defaultMode": "dontAsk"
   },
   "hooks": {
     "UserPromptSubmit": [
@@ -38,8 +34,22 @@
             "command": "~/.claude/hooks/enforce-tools.sh"
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/plan-annotate.py",
+            "timeout": 345600
+          }
+        ]
       }
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "pg@aiguide": true,
@@ -47,16 +57,26 @@
     "feature-dev@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "learning-output-style@claude-plugins-official": true,
-    "ralph-wiggum@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": false,
     "security-guidance@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true,
+    "swift-lsp@claude-plugins-official": false,
     "example-skills@anthropic-agent-skills": true,
     "code-simplifier@claude-plugins-official": true,
-    "superpowers@superpowers-marketplace": true
+    "revdiff@revdiff": true,
+    "clangd-lsp@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "revdiff": {
+      "source": {
+        "source": "github",
+        "repo": "umputun/revdiff"
+      }
+    }
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+  "skipDangerousModePermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754086020985
   }

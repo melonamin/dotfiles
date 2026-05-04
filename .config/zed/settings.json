@@ -1,4 +1,10 @@
 {
+  "outline_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "icon_theme": "Material Icon Theme",
   "features": {
     "edit_prediction_provider": "zed"
@@ -42,6 +48,7 @@
     }
   ],
   "agent": {
+    "dock": "right",
     "default_profile": "write",
     "always_allow_tool_actions": true,
     "enable_experimental_live_diffs": true,
@@ -60,6 +67,7 @@
     "show_nav_history_buttons": false
   },
   "project_panel": {
+    "dock": "left",
     "indent_size": 16
   },
   "soft_wrap": "editor_width",
@@ -76,6 +84,7 @@
     "mode": "subtle"
   },
   "collaboration_panel": {
+    "dock": "left",
     "button": false
   },
   "auto_signature_help": true,

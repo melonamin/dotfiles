@@ -5,6 +5,7 @@ end
 
 if status is-interactive
     fish_default_key_bindings
+    starship init fish | source
 end
 
 # Load the shell dotfiles, and then some:
