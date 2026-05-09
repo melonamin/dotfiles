@@ -1,0 +1,23 @@
+#!/bin/bash
+# Dispatch a media-key action to the most appropriate MPRIS player.
+# Picks any player in Playing state first; otherwise the first listed.
+# Avoids playerctld, which is unreliable in this Arch build.
+#
+# Usage: media-key <action>   e.g. play-pause | next | previous | stop
+
+set -e
+action="${1:?action required (play-pause|next|previous|...)}"
+
+mapfile -t players < <(playerctl -l 2>/dev/null)
+(( ${#players[@]} == 0 )) && exit 0
+
+target=""
+for p in "${players[@]}"; do
+  if [[ "$(playerctl -p "$p" status 2>/dev/null)" == "Playing" ]]; then
+    target="$p"
+    break
+  fi
+done
+[[ -z "$target" ]] && target="${players[0]}"
+
+exec playerctl -p "$target" "$action"
