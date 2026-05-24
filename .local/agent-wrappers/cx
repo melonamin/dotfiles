@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# codex wrapper — replaces the `cx` shell alias.
+# Resumes the per-pane session when cwd matches; captures session id on exit.
+set -uo pipefail
+source "$HOME/.local/agent-wrappers/_agent-resume.sh"
+
+state="$STATE_DIR/cx-$(agent_pane_key)"
+launch_ts=$(date +%s)
+
+# Global codex flags carried from the original alias.
+codex_opts=(-c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox)
+
+resume_id=$(agent_read_resume_id "$state")
+if [[ -n "$resume_id" ]]; then
+    codex "${codex_opts[@]}" resume "$resume_id" "$@"
+else
+    codex "${codex_opts[@]}" "$@"
+fi
+status=$?
+
+agent_write_state "$state" "$(agent_capture_codex "$launch_ts")"
+exit $status

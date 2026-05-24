@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# claude wrapper — replaces the `clx` shell alias.
+# Resumes the per-pane session when cwd matches; captures session id on exit.
+set -uo pipefail
+source "$HOME/.local/agent-wrappers/_agent-resume.sh"
+
+state="$STATE_DIR/clx-$(agent_pane_key)"
+launch_ts=$(date +%s)
+
+resume_id=$(agent_read_resume_id "$state")
+if [[ -n "$resume_id" ]]; then
+    claude --dangerously-skip-permissions --resume "$resume_id" "$@"
+else
+    claude --dangerously-skip-permissions "$@"
+fi
+status=$?
+
+agent_write_state "$state" "$(agent_capture_claude "$launch_ts")"
+exit $status
