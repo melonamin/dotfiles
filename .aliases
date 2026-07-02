@@ -74,9 +74,12 @@ alias cloc="tokei --sort code"
 alias mr='mise run'
 
 # AI tools
-alias dclaude="claude --dangerously-skip-permissions"
+# clx and cx are scripts in ~/.local/agent-wrappers/ so tmux-resurrect can
+# resume per-pane sessions across tmux restarts.
 alias dcodex="codex -m gpt-5.2-codex --full-auto -c model_reasoning_effort=high"
-alias ddcodex="codex -c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox"
+alias spi="pi --tools read,grep,find,ls"
+
+alias csession="uvx agent-session-viewer"
 
 alias csession="uvx agent-session-viewer"
 
@@ -90,3 +93,4 @@ alias ld="lazydocker"
 # Lumen diff shortcuts
 alias ldiff='lumen diff'
 alias ldiffb='lumen diff $(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed "s@^refs/remotes/origin/@@")..$(git rev-parse --abbrev-ref HEAD)'
+

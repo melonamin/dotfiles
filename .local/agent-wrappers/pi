@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# pi wrapper — shadows the real `pi` binary in PATH.
+# Same wrapper name as the binary, so we explicitly skip our own dir when
+# locating the real executable.
+set -uo pipefail
+source "$HOME/.local/agent-wrappers/_agent-resume.sh"
+
+WRAPPER_DIR="$HOME/.local/agent-wrappers"
+real_pi=""
+IFS=: read -ra _paths <<< "$PATH"
+for _p in "${_paths[@]}"; do
+    [[ "$_p" == "$WRAPPER_DIR" ]] && continue
+    if [[ -x "$_p/pi" ]]; then
+        real_pi="$_p/pi"
+        break
+    fi
+done
+if [[ -z "$real_pi" ]]; then
+    echo "pi: real binary not found in PATH (excluding $WRAPPER_DIR)" >&2
+    exit 127
+fi
+
+# Only inject --session for normal interactive/chat launches. Pi's package
+# commands must be the first argv token; `pi --session <id> update` is parsed as
+# a prompt, not as `pi update`. Also respect explicit session/non-interactive
+# flags so the wrapper does not fight the user's CLI intent.
+should_resume=1
+case "${1:-}" in
+    install|remove|uninstall|update|list|config)
+        should_resume=0
+        ;;
+esac
+for arg in "$@"; do
+    case "$arg" in
+        --session|--session=*|--fork|--fork=*|--resume|-r|--continue|-c|--no-session|--print|-p|--help|-h|--version|-v|--list-models|--list-models=*|--export|--export=*)
+            should_resume=0
+            break
+            ;;
+    esac
+done
+
+if [[ "$should_resume" -eq 0 ]]; then
+    exec "$real_pi" "$@"
+fi
+
+state="$STATE_DIR/pi-$(agent_pane_key)"
+launch_ts=$(date +%s)
+
+resume_id=$(agent_read_resume_id "$state")
+if [[ -n "$resume_id" ]]; then
+    "$real_pi" --session "$resume_id" "$@"
+else
+    "$real_pi" "$@"
+fi
+status=$?
+
+agent_write_state "$state" "$(agent_capture_pi "$launch_ts")"
+exit $status
