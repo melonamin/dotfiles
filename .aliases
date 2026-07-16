@@ -1,8 +1,10 @@
 # Cross-platform aliases
 # Platform-specific aliases are in ~/.config/fish/conf.d/platform.fish
 
-# Dotfiles git
-alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+# Dotfiles git. Files live in the repo and are linked/copied into $HOME, so
+# stage repo-relative paths, not $HOME ones. See the `dotfiles` agent skill.
+alias config='/usr/bin/git -C $HOME/Developer/github.com/melonamin/dotfiles'
+alias dotfiles='cd $HOME/Developer/github.com/melonamin/dotfiles'
 
 # Easier navigation: .., ..., ...., .....
 alias ..="cd .."
