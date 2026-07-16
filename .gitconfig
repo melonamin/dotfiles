@@ -73,7 +73,7 @@
             fi; \
         }; f"
 [gpg "ssh"]
-	program = /opt/1Password/op-ssh-sign
+	program = /usr/bin/ssh-keygen
 [pull]
 	rebase = true
 [init]

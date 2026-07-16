@@ -1,4 +1,11 @@
 {
+  "cli_default_open_behavior": "existing_window",
+  "outline_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "icon_theme": "Material Icon Theme",
   "features": {
     "edit_prediction_provider": "zed"
@@ -42,6 +49,7 @@
     }
   ],
   "agent": {
+    "dock": "left",
     "default_profile": "write",
     "always_allow_tool_actions": true,
     "enable_experimental_live_diffs": true,
@@ -60,11 +68,12 @@
     "show_nav_history_buttons": false
   },
   "project_panel": {
+    "dock": "right",
     "indent_size": 16
   },
   "soft_wrap": "editor_width",
   "preferred_line_length": 140,
-  "theme": "Catppuccin Frappé - No Italics",
+  "theme": "Omazed",
   "buffer_font_family": "Victor Mono",
   "buffer_font_weight": 400,
   "buffer_line_height": "comfortable",
@@ -76,6 +85,7 @@
     "mode": "subtle"
   },
   "collaboration_panel": {
+    "dock": "left",
     "button": false
   },
   "auto_signature_help": true,
@@ -159,11 +169,6 @@
     }
   },
   "context_servers": {
-    "mcp-server-brave-search": {
-      "source": "extension",
-      "settings": {
-        "brave_api_key": ""
-      }
-    }
+    
   }
 }

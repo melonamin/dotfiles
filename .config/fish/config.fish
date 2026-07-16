@@ -5,6 +5,7 @@ end
 
 if status is-interactive
     fish_default_key_bindings
+    starship init fish | source
 end
 
 # Load the shell dotfiles, and then some:
@@ -34,6 +35,10 @@ end
 set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
+# Tmux-resurrect-aware AI agent wrappers (clx, cx, pi). Must come after mise
+# activate so our pi shadows mise's pi.
+set --export PATH $HOME/.local/agent-wrappers $PATH
+
 zoxide init --cmd cd fish | source
 
 function y
@@ -54,3 +59,7 @@ alias openhands="uvx --python 3.12 --from openhands-ai openhands"
 alias oh="uvx --python 3.12 --from openhands-ai openhands"
 # Dev helpers (if exists)
 test -f ~/Developer/.bin/dev-helpers.fish && source ~/Developer/.bin/dev-helpers.fish
+
+# >>> agterm agent-status >>>
+source '/home/sasha/.config/agterm/agent-status/shell/integration.fish'
+# <<< agterm agent-status <<<

@@ -1,63 +1,60 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {},
   "includeCoAuthoredBy": false,
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
-  "permissions": {
-    "allow": [
-      "Bash(xcodebuild:*)",
-      "Bash(rg:*)"
-    ],
-    "deny": [],
-    "defaultMode": "default"
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline-command.sh"
-  },
+  "model": "claude-fable-5[1m]",
   "hooks": {
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/home/sasha/.config/agterm/agent-status/agterm-agent-status.sh' blocked"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/home/sasha/.config/agterm/agent-status/agterm-agent-status.sh' active --blink"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/sasha/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/home/sasha/.config/agterm/agent-status/agterm-agent-status.sh' completed --auto-reset"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/skill-forced-eval-hook.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/enforce-tools.sh"
+            "command": "'/home/sasha/.config/agterm/agent-status/agterm-agent-status.sh' active --blink"
           }
         ]
       }
     ]
   },
-  "enabledPlugins": {
-    "pg@aiguide": true,
-    "commit-commands@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "learning-output-style@claude-plugins-official": true,
-    "ralph-wiggum@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "swift-lsp@claude-plugins-official": true,
-    "example-skills@anthropic-agent-skills": true,
-    "code-simplifier@claude-plugins-official": true,
-    "superpowers@superpowers-marketplace": true
-  },
-  "alwaysThinkingEnabled": true,
-  "feedbackSurveyState": {
-    "lastShownTime": 1754086020985
-  }
+  "skipDangerousModePermissionPrompt": true
 }

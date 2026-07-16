@@ -74,6 +74,11 @@
 - You must use uv instead of pip
 - You must use just instead of make and other tools for this role
 
+# Hosted & Visual Deliverables
+
+- When a task calls for a hosted, shareable, or visually-presented deliverable — a site, dashboard, visual report, status/summary page, published link, or anything you would previously have built as an Artifact — use the `spot` skill (`/spot`)
+- Apply the `artifact-design` skill's fundamentals (deliberate palette, paired typefaces, disciplined light/dark themes, no generic AI-looking design) to Spot's visual layer; let Spot's fetched how-to and schema govern structure, deployment, and asset handling
+
 # Important Reminders
 
 **NEVER**:
