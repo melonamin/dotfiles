@@ -1,0 +1,122 @@
+onboarding = false
+
+[terminal]
+# Match tmux's `-c "#{pane_current_path}"` behavior for new panes and tabs.
+new_cwd = "follow"
+
+[keys]
+# Primary tmux prefix. Herdr supports one prefix, so C-b remains tmux-only.
+prefix = "ctrl+space"
+
+# General/session controls (Herdr workspaces correspond to tmux sessions).
+settings = "prefix+comma"
+detach = "prefix+d"
+reload_config = "prefix+q"
+workspace_picker = "prefix+s"
+new_workspace = "prefix+shift+c"
+rename_workspace = "prefix+shift+r"
+close_workspace = "prefix+shift+k"
+previous_workspace = "alt+up"
+next_workspace = "alt+down"
+switch_workspace = "ctrl+1..9"
+
+# Agent panel navigation.
+previous_agent = "ctrl+up"
+next_agent = "ctrl+down"
+
+# Window controls (Herdr tabs correspond to tmux windows).
+new_tab = "prefix+c"
+rename_tab = "prefix+r"
+previous_tab = "alt+left"
+next_tab = "alt+right"
+switch_tab = "alt+1..9"
+close_tab = "prefix+k"
+
+# Pane controls.
+split_vertical = "prefix+v"
+split_horizontal = "prefix+h"
+close_pane = "prefix+x"
+focus_pane_left = "ctrl+alt+left"
+focus_pane_right = "ctrl+alt+right"
+focus_pane_up = "ctrl+alt+up"
+focus_pane_down = "ctrl+alt+down"
+resize_mode = "prefix+shift+e"
+# Zoom (maximize) the active pane — matches tmux's `prefix z`.
+zoom = "prefix+z"
+
+# tmux-style popup tools. Each opens in the active pane's working directory.
+# The tool runs inside a tmux session so the same key toggles the popup: the
+# popup is session-modal, so the key reaches the inner tmux, whose matching
+# `bind -n M-*` guard in ~/.config/tmux/tmux.conf detaches when the session name
+# matches (hiding the popup and leaving the tool running to resume later). The
+# guards are what keep a keypress inside a popup from opening another popup —
+# keep the session names below in sync with those patterns.
+[[keys.command]]
+key = "alt+t"
+type = "popup"
+# Attach a tmux-backed scratch shell so Alt-t inside the popup detaches and
+# hides it without killing the shell. Each Herdr workspace gets its own.
+command = 'exec tmux new-session -A -s "scratch-herdr-${HERDR_ACTIVE_WORKSPACE_ID:-default}"'
+width = "80%"
+height = "80%"
+
+[[keys.command]]
+key = "alt+g"
+type = "popup"
+# Per-pane sessions let the same key hide and later resume each tool.
+command = 'exec tmux new-session -A -s "herdr-popup-g-${HERDR_ACTIVE_PANE_ID:-default}" -c "${HERDR_ACTIVE_PANE_CWD:-.}" lazygit'
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "alt+j"
+type = "popup"
+command = 'exec tmux new-session -A -s jot "nvim ~/.local/share/jot.md"'
+width = "80%"
+height = "80%"
+
+[[keys.command]]
+key = "alt+r"
+type = "popup"
+command = 'exec tmux new-session -A -s "herdr-popup-r-${HERDR_ACTIVE_PANE_ID:-default}" -c "${HERDR_ACTIVE_PANE_CWD:-.}" revdiff'
+width = "90%"
+height = "90%"
+
+[[keys.command]]
+key = "alt+n"
+type = "popup"
+command = 'exec tmux new-session -A -s "herdr-popup-n-${HERDR_ACTIVE_PANE_ID:-default}" -c "${HERDR_ACTIVE_PANE_CWD:-.}" "nvim ."'
+width = "90%"
+height = "90%"
+
+[theme]
+name = "terminal"
+
+[theme.custom]
+# tmux uses the terminal default background with blue active accents.
+panel_bg = "reset"
+accent = "blue"
+blue = "blue"
+
+[ui]
+mouse_capture = true
+copy_on_select = true
+confirm_close = false
+prompt_new_tab_name = false
+pane_borders = true
+pane_gaps = false
+
+agent_panel_sort = "priority"
+[session]
+# Herdr persistence replaces tmux-resurrect/continuum for agent panes.
+resume_agents_on_restore = true
+
+[advanced]
+# Roughly matches the practical capacity of tmux's 50,000-line history limit.
+scrollback_limit_bytes = 10000000
+
+[ui.toast]
+delivery = "system"
+
+[ui.sound]
+enabled = false
