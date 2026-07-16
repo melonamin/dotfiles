@@ -69,6 +69,7 @@ alias emacs="emacsclient -c -a 'emacs'"
 
 # Count lines with tokei
 alias cloc="tokei --sort code"
+alias scc="scc --exclude-dir .git,.hg,.svn,.worktrees,node_modules,dist,build,coverage,generated --exclude-file package-lock.json,Cargo.lock,yarn.lock,pubspec.lock,Podfile.lock,pnpm-lock.yaml"
 
 # mise task runner
 alias mr='mise run'
@@ -91,4 +92,3 @@ alias ld="lazydocker"
 # Lumen diff shortcuts
 alias ldiff='lumen diff'
 alias ldiffb='lumen diff $(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed "s@^refs/remotes/origin/@@")..$(git rev-parse --abbrev-ref HEAD)'
-
