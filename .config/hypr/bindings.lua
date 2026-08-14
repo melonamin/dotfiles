@@ -9,7 +9,9 @@ o.bind("SUPER + A", "Perplexity search", { launch = "omarchy-cmd-perplexity" })
 -- Activity monitor. Omarchy also binds this to SUPER + CTRL + T by default.
 o.bind("SUPER + SHIFT + T", "Activity", { tui = "btop" })
 
-o.bind("CTRL + SHIFT + code:11", "Trex", "/home/sasha/.local/bin/trex")
+-- OCR a screen region to the clipboard. Omarchy also binds this to
+-- SUPER + CTRL + PRINT, which this keyboard has no key for.
+o.bind("CTRL + SHIFT + code:11", "Extract text (OCR)", "omarchy-capture-text")
 
 -- Screenshots and screen recording on the macOS-style CTRL/ALT + SHIFT + digit
 -- combos, alongside Omarchy's own PRINT bindings.
