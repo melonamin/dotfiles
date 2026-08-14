@@ -19,7 +19,10 @@ end
 [ -r ~/.config/uwsm/default ] && source ~/.config/uwsm/default
 
 # Omarchy environment variables
-set -gx OMARCHY_PATH $HOME/.local/share/omarchy
+# Must be the packaged path, not the ~/.local/share/omarchy symlink to it:
+# `qs ipc -p` matches the running shell's config path literally, so the
+# symlinked form makes omarchy-shell report "not running" from a terminal.
+set -gx OMARCHY_PATH /usr/share/omarchy
 set -gx SUDO_EDITOR "$EDITOR"
 set -gx BAT_THEME ansi
 
