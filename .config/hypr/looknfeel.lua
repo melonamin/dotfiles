@@ -1,13 +1,7 @@
--- Personal look'n'feel overrides: denser window spacing, rounded corners,
--- shadow and blur on, animations off.
+-- Personal look'n'feel overrides: rounded corners, shadow and blur on,
+-- animations off. Gaps stay on Omarchy's defaults.
 
--- https://wiki.hypr.land/Configuring/Basics/Variables/#general
 hl.config({
-  general = {
-    gaps_in = 2,
-    gaps_out = 4,
-  },
-
   decoration = {
     rounding = 10,
 

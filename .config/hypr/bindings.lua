@@ -28,11 +28,8 @@ o.bind("SUPER + R", "Stop dictation", "voxtype record stop", { release = true })
 
 o.bind("SUPER + E", "Toggle transcription", "/usr/bin/handy --toggle-transcription")
 
--- Terminal multiplexer pane zoom. The unbind drops the default
--- tiled-fullscreen on SUPER + F so the pane zooms without the window also
--- changing.
-hl.unbind("SUPER + F")
-o.bind("SUPER + F", "Toggle tmux pane zoom", "tmux resize-pane -Z")
+-- SUPER + F stays on Omarchy's default full screen.
+
 -- The unbind drops the default tiled-fullscreen on SUPER + CTRL + F so the
 -- pane zooms without the window also changing.
 hl.unbind("SUPER + CTRL + F")
