@@ -1,5 +1,13 @@
 -- Extra autostart processes.
 
+-- Handy needs a persistent instance: `handy --toggle-transcription` (SUPER + E)
+-- is a message to a running app, and with nothing listening it becomes a full
+-- app instance instead. Pressing the key again before that one finishes
+-- starting spawns a second app, and each draws its own recording overlay.
+-- Handy's own XDG autostart entry never fires here because
+-- xdg-desktop-autostart.target is inactive on this session.
+o.launch_on_start("handy --start-hidden")
+
 -- Disable phantom monitor duplicates (e.g. Apple Studio Display registering
 -- two ports). No-op when no two monitors share a serial.
 o.exec_on_start("~/.config/hypr/scripts/disable-phantom-monitors.sh")
