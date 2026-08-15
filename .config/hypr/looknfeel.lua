@@ -1,8 +1,10 @@
--- Personal look'n'feel overrides: shadow and blur on, animations off.
--- Gaps and corner rounding stay on Omarchy's defaults.
+-- Personal look'n'feel overrides: rounded corners, shadow and blur on,
+-- animations off. Gaps stay on Omarchy's defaults.
 
 hl.config({
   decoration = {
+    rounding = 8,
+
     shadow = {
       enabled = true,
       range = 4,
