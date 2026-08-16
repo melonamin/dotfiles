@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.bb",
+  "name": "BB Control",
+  "version": "0.1.0",
+  "author": "melonamin",
+  "description": "Monitor BB threads, select Claude and Codex credential profiles, and restart the BB service.",
+  "license": "MIT",
+  "kinds": [
+    "bar-widget"
+  ],
+  "activation": "on-demand",
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "BB Control",
+    "description": "BB activity, attention, credential profiles, and service restart.",
+    "category": "AI",
+    "aliases": [
+      "bb",
+      "agents"
+    ],
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
