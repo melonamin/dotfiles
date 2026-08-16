@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.clock",
+  "name": "World Clock",
+  "version": "1.1.0",
+  "author": "melonamin",
+  "description": "Date/time label with a calendar popup and expandable world times",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "World Clock",
+    "description": "Date/time label with a calendar popup and Berlin, Moscow, and Dubai times",
+    "category": "Time",
+    "allowMultiple": false
+  },
+  "omarchy": {
+    "clonedFrom": "omarchy.clock"
+  }
+}

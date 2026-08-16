@@ -1,6 +1,6 @@
 {
   "bar": {
-    "centerAnchor": "omarchy.clock",
+    "centerAnchor": "melonamin.clock",
     "layout": {
       "center": [
         {
@@ -10,7 +10,7 @@
           "birthYear": 1988,
           "format": "dddd HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
-          "id": "omarchy.clock",
+          "id": "melonamin.clock",
           "lifeExpectancy": 90,
           "verticalFormat": "HH\n—\nmm"
         },
