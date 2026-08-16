@@ -95,12 +95,14 @@ if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$threads_json"; then
 fi
 
 version=$(jq -r '.currentVersion // empty' <<<"$version_json" 2>/dev/null || true)
+cutoff_ms=$(( $(date +%s) * 1000 - 24 * 60 * 60 * 1000 ))
 
 jq -c \
     --arg serviceStatus "$service_status" \
     --arg version "$version" \
     --arg activeClaudeId "$active_claude_id" \
     --arg activeCodexId "$active_codex_id" \
+    --argjson cutoffMs "$cutoff_ms" \
     --argjson profiles "$profiles" '
     def unread_attention:
       ((.latestAttentionAt // 0) | tonumber) > ((.lastReadAt // 0) | tonumber);
@@ -118,7 +120,7 @@ jq -c \
       elif is_error then 2
       else 3
       end;
-    . as $threads |
+    [.[] | select(((.updatedAt // 0) | tonumber) >= $cutoffMs)] as $threads |
     {
       online: true,
       serviceStatus: $serviceStatus,

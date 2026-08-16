@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import qs.Commons
@@ -17,6 +18,7 @@ Panel {
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
   readonly property string stateCommand: (Quickshell.env("HOME") || "") + "/.config/omarchy/plugins/io.github.fabean.herdr/state.sh"
   readonly property string themeColorsPath: (Quickshell.env("HOME") || "") + "/.local/state/omarchy/current/theme/colors.toml"
+  readonly property url logoSource: Qt.resolvedUrl("assets/herdr-mark.svg")
   property color runningColor: Color.accent
 
   property var state: ({
@@ -38,11 +40,11 @@ Panel {
   readonly property int activeCount: working + blocked
   readonly property var agents: state && Array.isArray(state.agents) ? state.agents : []
   readonly property color statusColor: blocked > 0 ? urgent : (working > 0 ? runningColor : foreground)
-  readonly property string barText: {
-    if (!online) return "󰚩 ×"
-    if (blocked > 0) return "󰚩 " + blocked
-    if (working > 0) return "󰚩 " + working
-    return "󰚩 " + total
+  readonly property string barCountText: {
+    if (!online) return "×"
+    if (blocked > 0) return String(blocked)
+    if (working > 0) return String(working)
+    return String(total)
   }
 
   visible: true
@@ -144,12 +146,40 @@ Panel {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: root.barText
+    text: ""
+    labelVisible: false
+    hasVisualContent: true
     active: root.activeCount > 0
     activeColor: root.statusColor
-    fontSize: Style.bar.iconFont
-    horizontalMargin: 3.5
-    tooltipText: ""
+    fixedWidth: root.bar && root.bar.vertical ? -1 : barContent.implicitWidth + Style.space(7)
+    horizontalMargin: 0
+    tooltipText: root.online
+      ? "Herdr · " + root.working + " working · " + root.blocked + " blocked"
+      : "Herdr · offline"
+
+    Row {
+      id: barContent
+      anchors.centerIn: parent
+      spacing: Style.space(3)
+
+      HerdrMark {
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: -Style.space(2)
+        width: Style.bar.iconCanvas
+        height: Style.bar.iconCanvas
+        tint: root.statusColor
+      }
+
+      Text {
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.barCountText
+        color: root.statusColor
+        font.family: root.fontFamily
+        font.pixelSize: Style.font.bodySmall
+        font.bold: root.blocked > 0
+        renderType: Text.NativeRendering
+      }
+    }
 
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) root.refresh()
@@ -208,11 +238,10 @@ Panel {
             fontFamily: root.fontFamily
 
             iconComponent: Component {
-              Text {
-                text: "󰚩"
-                color: root.statusColor
-                font.family: root.fontFamily
-                font.pixelSize: Style.font.display
+              HerdrMark {
+                width: Style.font.display
+                height: Style.font.display
+                tint: root.statusColor
               }
             }
           }
@@ -285,6 +314,30 @@ Panel {
           }
         }
       }
+    }
+  }
+
+  component HerdrMark: Item {
+    id: herdrMark
+    property color tint: root.foreground
+
+    Image {
+      id: herdrMarkMask
+      anchors.fill: parent
+      source: root.logoSource
+      sourceSize.width: Math.max(1, Math.round(width * Screen.devicePixelRatio))
+      sourceSize.height: Math.max(1, Math.round(height * Screen.devicePixelRatio))
+      fillMode: Image.PreserveAspectFit
+      visible: false
+      layer.enabled: true
+    }
+
+    MultiEffect {
+      anchors.fill: herdrMarkMask
+      source: herdrMarkMask
+      brightness: 1.0
+      colorization: 1.0
+      colorizationColor: herdrMark.tint
     }
   }
 

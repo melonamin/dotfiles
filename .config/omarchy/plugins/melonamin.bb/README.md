@@ -3,8 +3,9 @@
 An Omarchy bar widget for BB activity and credential-profile selection.
 
 The bar shows unread BB errors first, then active thread count. The panel
-contains Herdr-style activity totals, a prioritized thread list, and fixed
-selectors for the local Claude and Codex profiles used by `bb.service`.
+contains Herdr-style activity totals, a prioritized list of threads updated
+within the last 24 hours, and fixed selectors for the local Claude and Codex
+profiles used by `bb.service`.
 
 ## Profiles
 
