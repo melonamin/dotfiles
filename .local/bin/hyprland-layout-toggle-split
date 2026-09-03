@@ -1,0 +1,13 @@
+#!/bin/bash
+
+layout=$(hyprctl -j activeworkspace | jq -r '.tiledLayout')
+
+case "$layout" in
+  dwindle)
+    hyprctl eval 'hl.dispatch(hl.dsp.layout("togglesplit"))' >/dev/null
+    ;;
+  *)
+    # Other layouts have no split tree, so there is nothing to toggle.
+    exit 0
+    ;;
+esac

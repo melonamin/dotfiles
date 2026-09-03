@@ -11,6 +11,48 @@
 STATE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/tmux-agent-sessions"
 mkdir -p "$STATE_DIR"
 
+# Link shared directories from a secondary agent home into the primary home.
+# Existing non-link paths are rejected so account-specific data is never
+# overwritten implicitly.
+agent_share_dirs() {
+    local primary_root="$1" secondary_root="$2"
+    shift 2
+    local rel src dst
+    for rel in "$@"; do
+        src="$primary_root/$rel"
+        dst="$secondary_root/$rel"
+        mkdir -p "$src"
+        if [[ -L "$dst" && "$(readlink -- "$dst")" == "$src" ]]; then
+            continue
+        fi
+        if [[ -e "$dst" || -L "$dst" ]]; then
+            echo "FAIL: $dst exists and is not the expected shared link" >&2
+            return 1
+        fi
+        ln -s -- "$src" "$dst"
+    done
+}
+
+# Link shared files that already exist in the primary agent home.
+agent_share_files() {
+    local primary_root="$1" secondary_root="$2"
+    shift 2
+    local rel src dst
+    for rel in "$@"; do
+        src="$primary_root/$rel"
+        dst="$secondary_root/$rel"
+        [[ -e "$src" || -L "$src" ]] || continue
+        if [[ -L "$dst" && "$(readlink -- "$dst")" == "$src" ]]; then
+            continue
+        fi
+        if [[ -e "$dst" || -L "$dst" ]]; then
+            echo "FAIL: $dst exists and is not the expected shared link" >&2
+            return 1
+        fi
+        ln -s -- "$src" "$dst"
+    done
+}
+
 # Stable per-pane key. Inside tmux we use session:window.pane indices because
 # tmux-resurrect restores those exactly. Outside tmux we hash $PWD as a
 # best-effort fallback.
@@ -69,7 +111,8 @@ agent_extract_uuid() {
 
 # claude project dir: replace / with - (e.g. /tmp -> -tmp)
 agent_claude_project_dir() {
-    echo "$HOME/.claude/projects/${1//\//-}"
+    local config_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+    echo "$config_dir/projects/${1//\//-}"
 }
 
 # pi sessions dir: --<cwd-with-leading-/-stripped, /->->--
@@ -97,7 +140,8 @@ agent_capture_pi() {
 # session_meta line and only accept the newest one whose payload.cwd == $PWD.
 agent_capture_codex() {
     local launch_ts="$1"
-    local base="$HOME/.codex/sessions"
+    local codex_home="${CODEX_HOME:-$HOME/.codex}"
+    local base="$codex_home/sessions"
     [[ -d "$base" ]] || return 0
     local today yest
     today=$(date -u +%Y/%m/%d)

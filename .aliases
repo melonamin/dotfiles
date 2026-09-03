@@ -77,7 +77,7 @@ alias scc="scc --exclude-dir .git,.hg,.svn,.worktrees,node_modules,dist,build,co
 alias mr='mise run'
 
 # AI tools
-# clx and cx are scripts in ~/.local/agent-wrappers/ so tmux-resurrect can
+# clx, clx2, cx, cx2, and cx3 are scripts in ~/.local/agent-wrappers/ so tmux-resurrect can
 # resume per-pane sessions across tmux restarts.
 alias dcodex="codex -m gpt-5.2-codex --full-auto -c model_reasoning_effort=high"
 alias spi="pi --tools read,grep,find,ls"

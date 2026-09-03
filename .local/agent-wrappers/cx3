@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Tertiary Codex wrapper with isolated credentials and shared user state.
+# Resumes the per-pane session when cwd matches; captures session id on exit.
+set -uo pipefail
+source "$HOME/.local/agent-wrappers/_agent-resume.sh"
+
+export CODEX_HOME="$HOME/.codex3"
+mkdir -p "$CODEX_HOME"
+chmod 700 "$CODEX_HOME"
+
+# Keep auth.json and account-specific runtime databases/caches local. Share
+# durable configuration, extensions, and session artifacts with primary Codex.
+agent_share_dirs "$HOME/.codex" "$CODEX_HOME" \
+    agents attachments memories plugins prompts rules sessions shell_snapshots \
+    skills || exit 1
+agent_share_files "$HOME/.codex" "$CODEX_HOME" \
+    AGENTS.md config.toml history.jsonl hooks.json || exit 1
+
+state="$STATE_DIR/cx3-$(agent_pane_key)"
+launch_ts=$(date +%s)
+
+# Global codex flags carried from the original wrapper.
+codex_opts=(-c model_reasoning_effort=high --dangerously-bypass-approvals-and-sandbox)
+
+resume_id=$(agent_read_resume_id "$state")
+if [[ -n "$resume_id" ]]; then
+    codex "${codex_opts[@]}" resume "$resume_id" "$@"
+else
+    codex "${codex_opts[@]}" "$@"
+fi
+status=$?
+
+agent_write_state "$state" "$(agent_capture_codex "$launch_ts")"
+exit $status

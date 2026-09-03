@@ -30,6 +30,11 @@ o.bind("SUPER + E", "Toggle transcription", "/usr/bin/handy --toggle-transcripti
 
 -- SUPER + F stays on Omarchy's default full screen.
 
+-- The default togglesplit message only exists in the dwindle layout. Guard it
+-- so scrolling workspaces get a useful explanation instead of a Lua error.
+hl.unbind("SUPER + J")
+o.bind("SUPER + J", "Toggle window split (dwindle only)", "hyprland-layout-toggle-split")
+
 -- The unbind drops the default tiled-fullscreen on SUPER + CTRL + F so the
 -- pane zooms without the window also changing.
 hl.unbind("SUPER + CTRL + F")
@@ -55,3 +60,12 @@ o.bind("SUPER + ALT + code:20", "Volume down precise", "omarchy-audio-output-vol
 o.bind("SUPER + bracketleft", "Previous track", "omarchy-shell media previous", { locked = true })
 o.bind("SUPER + backslash", "Play/pause", "omarchy-shell media playPause", { locked = true })
 o.bind("SUPER + bracketright", "Next track", "omarchy-shell media next", { locked = true })
+
+-- Lumarchy dry run: hold, draw without clicking, then release.
+o.bind("SUPER + Z", "Test Lumarchy gesture", "'/home/sasha/Developer/github.com/melonamin/lumarchy/build/release/lumarchy' test")
+o.bind("SUPER + Z", "Release Lumarchy test", "'/home/sasha/Developer/github.com/melonamin/lumarchy/build/release/lumarchy' end", { release = true })
+
+
+-- BEGIN melonamin.omarchy-leader managed binding
+o.bind("SUPER + semicolon", "Leader shortcuts", "omarchy-shell shell toggle melonamin.omarchy-leader '{}'")
+-- END melonamin.omarchy-leader managed binding

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Secondary Claude wrapper with isolated credentials and shared user state.
+# Resumes the per-pane session when cwd matches; captures session id on exit.
+set -uo pipefail
+source "$HOME/.local/agent-wrappers/_agent-resume.sh"
+
+export CLAUDE_CONFIG_DIR="$HOME/.claude2"
+mkdir -p "$CLAUDE_CONFIG_DIR"
+chmod 700 "$CLAUDE_CONFIG_DIR"
+
+# Keep .credentials.json and .claude.json local to this account. Share durable
+# configuration and session artifacts with the primary Claude home.
+agent_share_dirs "$HOME/.claude" "$CLAUDE_CONFIG_DIR" \
+    agents commands downloads file-history hooks paste-cache plans plugins \
+    projects rules session-env sessions shell-snapshots skills tasks || exit 1
+agent_share_files "$HOME/.claude" "$CLAUDE_CONFIG_DIR" \
+    CLAUDE.md history.jsonl settings.json settings.local.json \
+    statusline-command.sh statusline-robbyrussell.sh || exit 1
+
+state="$STATE_DIR/clx2-$(agent_pane_key)"
+launch_ts=$(date +%s)
+
+resume_id=$(agent_read_resume_id "$state")
+if [[ -n "$resume_id" ]]; then
+    claude --dangerously-skip-permissions --resume "$resume_id" "$@"
+else
+    claude --dangerously-skip-permissions "$@"
+fi
+status=$?
+
+agent_write_state "$state" "$(agent_capture_claude "$launch_ts")"
+exit $status

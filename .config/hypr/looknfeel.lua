@@ -1,7 +1,11 @@
 -- Personal look'n'feel overrides: rounded corners, shadow and blur on,
--- animations off. Gaps stay on Omarchy's defaults.
+-- animations off, and full-width pairs in the scrolling layout.
 
 hl.config({
+  scrolling = {
+    column_width = 0.5,
+  },
+
   decoration = {
     rounding = 8,
 
@@ -22,6 +26,12 @@ hl.config({
 
   animations = {
     enabled = false,
+  },
+
+  -- Software cursor so screen sharing (portal/screencopy) captures the pointer;
+  -- a hardware cursor lives on a scanout plane the capture never sees.
+  cursor = {
+    no_hardware_cursors = true,
   },
 
   -- Silence the warning about not using start-hyprland (Omarchy uses uwsm).
