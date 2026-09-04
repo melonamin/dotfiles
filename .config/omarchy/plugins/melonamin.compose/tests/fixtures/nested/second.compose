@@ -1,0 +1,2 @@
+<Multi_key> <s> : "second"
+include "first.compose"

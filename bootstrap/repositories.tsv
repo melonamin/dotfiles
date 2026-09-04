@@ -1,0 +1,7 @@
+# mode<TAB>url<TAB>destination relative to $HOME<TAB>post-install command
+clone	git@github.com:melonamin/skills.git	.agents/skills	./init.sh
+clone	git@github.com:tmux-plugins/tpm	.config/tmux/plugins/tpm	-
+# These required local projects do not have remotes yet. They remain explicit
+# so --check reports the missing dependency on a new machine.
+local-only	-	Developer/github.com/melonamin/lumarchy	-
+local-only	-	Developer/github.com/SecondStack-AI/SecondScribe	-

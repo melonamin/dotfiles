@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/melonamin/omarchy-leader/schema/config.schema.json",
+  "title": "Omarchy Leader configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "items"],
+  "properties": {
+    "version": { "const": 1 },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "start": { "$ref": "#/$defs/rendererId" },
+        "onPause": { "$ref": "#/$defs/rendererId" },
+        "onError": { "$ref": "#/$defs/rendererId" },
+        "sticky": { "$ref": "#/$defs/rendererId" },
+        "expandAfterMs": { "type": "integer", "minimum": 0 },
+        "sequenceTimeoutMs": {
+          "anyOf": [
+            { "const": 0 },
+            { "type": "integer", "minimum": 250 }
+          ]
+        }
+      }
+    },
+    "providers": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeoutMs": { "type": "integer", "minimum": 250 }
+      }
+    },
+    "items": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*$"
+      },
+      "additionalProperties": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "rendererId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1, "maxLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "icon": { "type": "string" },
+        "parent": { "type": "string" },
+        "sticky": { "type": "boolean" },
+        "hidden": { "type": "boolean" },
+        "notify": {
+          "oneOf": [
+            { "type": "boolean" },
+            { "enum": ["never", "always", "on-error"] }
+          ]
+        },
+        "action": { "$ref": "#/$defs/action" }
+      }
+    },
+    "action": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "desktop"],
+          "properties": {
+            "type": { "const": "launch" },
+            "desktop": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "target"],
+          "properties": {
+            "type": { "const": "open" },
+            "target": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "argv"],
+          "properties": {
+            "type": { "const": "command" },
+            "argv": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": ["string", "number", "boolean"] }
+            },
+            "cwd": { "type": "string" },
+            "env": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "timeoutMs": { "type": "integer", "minimum": 1000 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "command"],
+          "properties": {
+            "type": { "const": "shell" },
+            "command": { "type": "string", "minLength": 1 },
+            "cwd": { "type": "string" },
+            "env": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "timeoutMs": { "type": "integer", "minimum": 1000 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "args"],
+          "properties": {
+            "type": { "const": "omarchy" },
+            "args": {
+              "type": "array",
+              "items": { "type": ["string", "number", "boolean"] }
+            },
+            "timeoutMs": { "type": "integer", "minimum": 1000 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "steps"],
+          "properties": {
+            "type": { "const": "workflow" },
+            "steps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "oneOf": [
+                  { "type": "string" },
+                  { "$ref": "#/$defs/action" }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "provider" },
+            "argv": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": ["string", "number", "boolean"] }
+            },
+            "command": { "type": "string", "minLength": 1 },
+            "cwd": { "type": "string" },
+            "env": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          },
+          "anyOf": [
+            { "required": ["argv"] },
+            { "required": ["command"] }
+          ]
+        }
+      ]
+    }
+  }
+}

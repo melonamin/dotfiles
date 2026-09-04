@@ -1,0 +1,6 @@
+# Installed at the current crates.io release after rustup initializes stable.
+cargo-insta
+cargo-llvm-cov
+flowscope-cli
+lumen
+wasm-pack

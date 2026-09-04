@@ -1,0 +1,71 @@
+#!/bin/bash
+set -euo pipefail
+
+mode=insert
+case ${1:-} in
+  "") ;;
+  --copy-only|copy) mode=copy ;;
+  --insert|insert) mode=insert ;;
+  *) printf '%s\n' '{"ok":false,"error":"usage: compose-insert [--insert|--copy-only]"}'; exit 2 ;;
+esac
+
+runtime_dir=${XDG_RUNTIME_DIR:-/tmp}
+umask 077
+payload=$(mktemp --tmpdir="$runtime_dir" omarchy-compose-insert.XXXXXX)
+copy_pid=""
+
+cleanup() {
+  if [[ -n $copy_pid ]]; then
+    kill "$copy_pid" 2>/dev/null || true
+    wait "$copy_pid" 2>/dev/null || true
+  fi
+  [[ -e $payload ]] && unlink "$payload"
+}
+trap cleanup EXIT INT TERM
+
+if [[ ${COMPOSE_INPUT_BASE64:-0} == 1 ]]; then
+  IFS= read -r encoded_payload || { printf '%s\n' '{"ok":false,"error":"Missing Compose output"}'; exit 2; }
+  printf '%s' "$encoded_payload" | base64 -d > "$payload" || { printf '%s\n' '{"ok":false,"error":"Invalid Compose output encoding"}'; exit 2; }
+else
+  cat > "$payload"
+fi
+if [[ ! -s $payload ]]; then
+  printf '%s\n' '{"ok":false,"error":"Compose rule has no insertable output"}'
+  exit 3
+fi
+
+if [[ $mode == copy ]]; then
+  if wl-copy --type text/plain < "$payload"; then
+    printf '%s\n' '{"ok":true,"mode":"copy"}'
+  else
+    printf '%s\n' '{"ok":false,"error":"Could not copy Compose output"}'
+    exit 4
+  fi
+  exit 0
+fi
+
+# Keep ownership ourselves until after the synthetic paste. --paste-once is
+# unsafe here: a clipboard manager can consume the one request before the
+# focused application sees Shift+Insert.
+wl-copy --type text/plain --sensitive --foreground < "$payload" &
+copy_pid=$!
+sleep 0.15
+if ! kill -0 "$copy_pid" 2>/dev/null; then
+  wait "$copy_pid" 2>/dev/null || true
+  copy_pid=""
+  printf '%s\n' '{"ok":false,"error":"Could not offer Compose output on the clipboard"}'
+  exit 4
+fi
+
+# Shift+Insert works in terminals and ordinary GUI fields. The overlay closes
+# before this helper starts so focus has returned to the previous application.
+if ! wtype -M shift -k Insert -m shift 2>/dev/null; then
+  printf '%s\n' '{"ok":false,"error":"Could not type into the focused application"}'
+  exit 5
+fi
+
+# Give the focused client time to issue its Wayland data request, then let the
+# EXIT trap release the foreground owner. wtype confirms that the paste key was
+# delivered; Wayland does not expose a portable acknowledgement from the target.
+sleep 0.2
+printf '%s\n' '{"ok":true,"mode":"insert"}'

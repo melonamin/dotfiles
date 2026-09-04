@@ -1,0 +1,9 @@
+# kind<TAB>value
+theme	Tokyo Night
+background	/usr/share/omarchy/themes/tokyo-night/backgrounds/0-winding-road.jpg
+font	JetBrainsMono Nerd Font
+terminal	ghostty
+browser	chromium
+editor	nvim
+agent	codex
+shell	/usr/bin/fish

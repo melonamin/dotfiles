@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.quick-panels",
+  "name": "Quick Panels",
+  "version": "0.1.0",
+  "author": "melonamin",
+  "description": "A polished mouse-activated launcher and folder dock for Omarchy.",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "Main.qml"
+  },
+  "keepLoaded": true
+}

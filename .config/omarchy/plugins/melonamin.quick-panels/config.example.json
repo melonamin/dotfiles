@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "edge": "bottom",
+  "screens": [
+    "*"
+  ],
+  "openDelay": 45,
+  "closeDelay": 380,
+  "layer": "top",
+  "iconSize": 40,
+  "activationWidth": 360,
+  "closeOnLaunch": true,
+  "items": [
+    {
+      "type": "app",
+      "desktopId": "com.mitchellh.ghostty"
+    },
+    {
+      "type": "app",
+      "desktopId": "org.mozilla.firefox"
+    },
+    {
+      "type": "separator"
+    },
+    {
+      "type": "folder",
+      "name": "Home",
+      "path": "~"
+    },
+    {
+      "type": "folder",
+      "name": "Downloads",
+      "path": "~/Downloads"
+    }
+  ]
+}

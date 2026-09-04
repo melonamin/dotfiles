@@ -1,0 +1,7 @@
+# Personal typography
+include "%H/.config/compose/base"
+
+None <Multi_key> <apostrophe> <e> : "é" eacute # acute e
+<Multi_key> <space> <space> : "\t" Tab # tab
+<Multi_key> <n> <l> : "line one\nline two" # multiline
+this future syntax must stay untouched

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.omarchy-leader",
+  "name": "Omarchy Leader",
+  "version": "0.1.0",
+  "author": "melonamin",
+  "description": "Mnemonic leader-key shortcuts with adaptive Omarchy-native interfaces",
+  "kinds": [
+    "menu"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "menu": "Leader.qml"
+  }
+}

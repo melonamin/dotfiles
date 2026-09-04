@@ -1,0 +1,6 @@
+<Multi_key> <a> : "short-first"
+<Multi_key> <a> <b> : "long-last"
+<Multi_key> <x> <y> : "long-first"
+<Multi_key> <x> : "short-last"
+<Multi_key> <d> : "old"
+<Multi_key> <d> : "new"

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.notification-router",
+  "name": "Notification Router",
+  "version": "1.0.0",
+  "author": "melonamin",
+  "license": "MIT",
+  "description": "Rule engine for notifications: match by app, title, body or regex, then silence, colour a bar dot, play a sound, or forward to ntfy or a webhook.",
+  "kinds": [
+    "service",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml",
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Notification Router",
+    "description": "One bell per routed notification, tinted by the rule that caught it",
+    "category": "Status",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "maxDots": 5
+    },
+    "schema": [
+      {
+        "key": "maxDots",
+        "type": "int",
+        "label": "Bells before collapsing to a +N badge"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.compose",
+  "name": "Compose",
+  "version": "0.1.0",
+  "author": "melonamin",
+  "description": "Find, use, and safely edit your XCompose shortcuts.",
+  "homepage": "https://github.com/melonamin/omarchy-compose",
+  "license": "MIT",
+  "kinds": [
+    "service",
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml",
+    "overlay": "Compose.qml"
+  }
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Symlink tracked dotfiles from this repo into $HOME.
 # Idempotent: rerun any time. Existing regular files are moved to
-# <path>.bak before the symlink is created; existing correct symlinks are
+# <path>.bak.<timestamp> before the symlink is created; correct symlinks are
 # left alone.
 set -euo pipefail
 
@@ -25,6 +25,7 @@ link_path() {
     local rel="$1"
     local src="$REPO/$rel"
     local dst="$HOME/$rel"
+    local backup
 
     if [[ ! -e "$src" ]]; then
         echo "skip: $rel (missing in repo)" >&2
@@ -39,14 +40,11 @@ link_path() {
 
     mkdir -p "$(dirname -- "$dst")"
 
-    # Something else lives there — back it up, refusing to clobber a prior backup.
+    # Something else lives there — preserve it under a unique backup name.
     if [[ -e "$dst" || -L "$dst" ]]; then
-        if [[ -e "$dst.bak" || -L "$dst.bak" ]]; then
-            echo "FAIL: $rel — $dst exists and $dst.bak already taken; resolve manually" >&2
-            return 1
-        fi
-        mv -- "$dst" "$dst.bak"
-        echo "back: $rel -> $rel.bak"
+        backup="$dst.bak.$(date +%Y%m%d%H%M%S)"
+        mv -- "$dst" "$backup"
+        echo "back: $rel -> ${backup#$HOME/}"
     fi
 
     ln -s -- "$src" "$dst"

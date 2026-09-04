@@ -1,5 +1,6 @@
 [tools]
 opencode = "latest"
+pi = "latest"
 actionlint = "latest"
 air = "latest"
 bun = "latest"

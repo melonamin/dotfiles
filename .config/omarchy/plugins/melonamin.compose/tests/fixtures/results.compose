@@ -1,0 +1,5 @@
+<Multi_key> <s> : "string"
+<Multi_key> <e> : eacute
+<Multi_key> <u> : "ú" uacute
+<Multi_key> <v> : VoidSymbol
+<Multi_key> <q> : "quote: \" slash: \\ tab: \x09 newline: \x0a"

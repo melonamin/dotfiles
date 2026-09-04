@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -euo pipefail
+
+interfaces_dir="${1:-}"
+[[ -n $interfaces_dir ]] || { echo '[]'; exit 0; }
+[[ -d $interfaces_dir ]] || { echo '[]'; exit 0; }
+
+rows=()
+while IFS= read -r -d '' manifest; do
+  renderer_dir="${manifest%/manifest.json}"
+  [[ -L $renderer_dir || -L $manifest ]] && continue
+  find "$renderer_dir" -type l -print -quit | grep -q . && continue
+  jq -e '
+    .apiVersion == 1 and
+    (.id | type == "string" and test("^[A-Za-z0-9][A-Za-z0-9._-]*$")) and
+    (.name | type == "string" and length > 0) and
+    (.entryPoint | type == "string" and length > 0) and
+    (.entryPoint | startswith("/") | not) and
+    (.entryPoint | contains("..") | not)
+  ' "$manifest" >/dev/null 2>&1 || continue
+
+  entry_point=$(jq -r '.entryPoint' "$manifest")
+  source_path="$renderer_dir/$entry_point"
+  [[ -f $source_path && ! -L $source_path ]] || continue
+
+  rows+=("$(jq -c --arg source "$source_path" '{
+    apiVersion,
+    id,
+    name,
+    capabilities: (.capabilities // []),
+    source: $source
+  }' "$manifest")")
+done < <(find "$interfaces_dir" -mindepth 2 -maxdepth 2 -name manifest.json -type f -print0 2>/dev/null)
+
+if (( ${#rows[@]} == 0 )); then
+  echo '[]'
+else
+  printf '%s\n' "${rows[@]}" | jq -s .
+fi

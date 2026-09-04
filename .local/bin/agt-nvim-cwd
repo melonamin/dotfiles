@@ -1,0 +1,5 @@
+#!/bin/sh
+# agterm Alt-n overlay: open nvim on the overlay's inherited cwd (the focused
+# pane's directory), the equivalent of tmux's `nvim .` display-popup. Kept as a
+# no-space wrapper so the agterm keymap parser passes it as a single token.
+exec /usr/bin/nvim .

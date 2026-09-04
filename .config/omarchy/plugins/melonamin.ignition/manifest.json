@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.ignition",
+  "name": "Ignition: G2M Analytics",
+  "version": "1.0.0",
+  "author": "melonamin",
+  "description": "Go-to-market analytics from Ignition — GSC trend, funnel, signals, and direction lanes per product",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Ignition: G2M Analytics",
+    "description": "GSC 28d numbers in the bar; funnel, sparkline, signals, and direction lanes in the panel",
+    "category": "Status",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "baseUrl": "https://ignition.spot.t1a.dev",
+      "products": "lakesentry,secondstack,antares,pondpilot",
+      "barProduct": "lakesentry"
+    },
+    "schema": [
+      { "key": "baseUrl", "type": "string", "label": "Ignition base URL" },
+      { "key": "products", "type": "string", "label": "Product ids (comma-separated)" },
+      { "key": "barProduct", "type": "string", "label": "Product shown in the bar" }
+    ]
+  }
+}

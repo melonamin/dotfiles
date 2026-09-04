@@ -1,0 +1,180 @@
+#!/bin/bash
+
+set -euo pipefail
+
+begin_marker='-- BEGIN melonamin.omarchy-leader managed binding'
+end_marker='-- END melonamin.omarchy-leader managed binding'
+bindings_path="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/bindings.lua"
+hyprctl_bin="${OMARCHY_LEADER_HYPRCTL:-hyprctl}"
+
+fail() {
+  printf '%s\n' "binding-helper: $*" >&2
+  exit 1
+}
+
+file_hash() {
+  if [[ -f $bindings_path ]]; then
+    sha256sum "$bindings_path" | awk '{print $1}'
+  else
+    printf 'MISSING\n'
+  fi
+}
+
+managed_binding() {
+  [[ -f $bindings_path ]] || return 0
+  awk -v begin="$begin_marker" -v end="$end_marker" '
+    $0 == begin { inside=1; next }
+    $0 == end { inside=0; next }
+    inside && match($0, /o\.bind\("([^"]+)"/, m) { print m[1]; exit }
+  ' "$bindings_path"
+}
+
+marker_count() {
+  local marker="$1"
+  [[ -f $bindings_path ]] || { printf '0\n'; return; }
+  grep -Fxc -- "$marker" "$bindings_path" || true
+}
+
+live_bindings() {
+  "$hyprctl_bin" binds -j 2>/dev/null || fail "could not read live Hyprland bindings"
+}
+
+status() {
+  local plugin_id="${1:-melonamin.omarchy-leader}"
+  local live current hash
+  live=$(live_bindings)
+  current=$(managed_binding || true)
+  hash=$(file_hash)
+
+  local keys=(semicolon apostrophe grave period slash backslash)
+  local rows=()
+  local key occupant available description argument
+  for key in "${keys[@]}"; do
+    occupant=$(jq -c --arg key "$key" '
+      [ .[] | select(
+          .modmask == 64 and
+          ((.key // "") | ascii_downcase) == $key
+        ) ][0] // null
+    ' <<<"$live")
+    available=true
+    description=""
+    if [[ $occupant != null ]]; then
+      description=$(jq -r '.description // .dispatcher // "Occupied"' <<<"$occupant")
+      argument=$(jq -r '.arg // ""' <<<"$occupant")
+      if [[ ${current,,} == "super + $key" ]]; then
+        description='Leader shortcuts (current)'
+      elif [[ $description != 'Leader shortcuts' || $argument != *"$plugin_id"* ]]; then
+        available=false
+      fi
+    fi
+    rows+=("$(jq -nc \
+      --arg binding "SUPER + $key" \
+      --arg description "$description" \
+      --argjson available "$available" \
+      '{binding:$binding, available:$available, description:$description}')")
+  done
+
+  jq -n \
+    --arg bindingsPath "$bindings_path" \
+    --arg fileHash "$hash" \
+    --arg currentBinding "$current" \
+    --argjson candidates "$(printf '%s\n' "${rows[@]}" | jq -s .)" \
+    '{bindingsPath:$bindingsPath, fileHash:$fileHash, currentBinding:$currentBinding, candidates:$candidates}'
+}
+
+write_block() {
+  local binding="$1"
+  local plugin_id="$2"
+  local temp="$3"
+  local source_file="$4"
+
+  if [[ -f $source_file ]]; then
+    awk -v begin="$begin_marker" -v end="$end_marker" '
+      $0 == begin { inside=1; next }
+      $0 == end { inside=0; next }
+      !inside { print }
+    ' "$source_file" >"$temp"
+  else
+    : >"$temp"
+  fi
+
+  if [[ -s $temp ]] && [[ $(tail -c 1 "$temp" | wc -l) -eq 0 ]]; then
+    printf '\n' >>"$temp"
+  fi
+  [[ ! -s $temp ]] || printf '\n' >>"$temp"
+  printf '%s\n' "$begin_marker" >>"$temp"
+  printf 'o.bind("%s", "Leader shortcuts", "omarchy-shell shell toggle %s '\''{}'\''")\n' "$binding" "$plugin_id" >>"$temp"
+  printf '%s\n' "$end_marker" >>"$temp"
+}
+
+apply_binding() {
+  local binding="${1:-}"
+  local expected_hash="${2:-}"
+  local plugin_id="${3:-melonamin.omarchy-leader}"
+  local normalized_binding="${binding,,}"
+  [[ $normalized_binding =~ ^super\ \+\ (semicolon|apostrophe|grave|period|slash|backslash)$ ]] || fail "unsupported leader candidate: $binding"
+  binding="SUPER + ${normalized_binding##*+ }"
+  [[ -n $expected_hash ]] || fail "missing file hash"
+
+  local actual_hash
+  actual_hash=$(file_hash)
+  [[ $actual_hash == "$expected_hash" ]] || fail "bindings.lua changed after preview; rescan before applying"
+  [[ $(marker_count "$begin_marker") -le 1 && $(marker_count "$end_marker") -le 1 ]] || fail "managed binding markers are duplicated"
+  [[ $(marker_count "$begin_marker") -eq $(marker_count "$end_marker") ]] || fail "managed binding markers are malformed"
+
+  local key live occupants current
+  key="${binding##*+ }"
+  live=$(live_bindings)
+  current=$(managed_binding || true)
+  occupants=$(jq -c --arg key "$key" '
+    [ .[] | select(
+      .modmask == 64 and
+      ((.key // "") | ascii_downcase) == $key
+    ) ]
+  ' <<<"$live")
+  if [[ ${current,,} == ${binding,,} ]]; then
+    [[ $(jq 'length' <<<"$occupants") -le 1 ]] || fail "shortcut has an additional live binding"
+  else
+    [[ $(jq 'length' <<<"$occupants") -eq 0 ]] || fail "shortcut is now occupied by $(jq -r '.[0].description // .[0].dispatcher // "another action"' <<<"$occupants")"
+  fi
+
+  mkdir -p "$(dirname "$bindings_path")"
+  local backup="" temp errors
+  if [[ -f $bindings_path ]]; then
+    backup="$bindings_path.bak.$(date +%Y%m%d%H%M%S)"
+    cp -a -- "$bindings_path" "$backup"
+  fi
+  temp=$(mktemp --tmpdir="$(dirname "$bindings_path")" .bindings.lua.XXXXXX)
+  trap 'rm -f -- "$temp"' EXIT
+  write_block "$binding" "$plugin_id" "$temp" "$bindings_path"
+  [[ ! -f $bindings_path ]] || chmod --reference="$bindings_path" "$temp"
+  mv -f -- "$temp" "$bindings_path"
+  trap - EXIT
+
+  if ! "$hyprctl_bin" reload >/dev/null 2>&1; then
+    [[ -n $backup ]] && cp -a -- "$backup" "$bindings_path" || rm -f -- "$bindings_path"
+    "$hyprctl_bin" reload >/dev/null 2>&1 || true
+    fail "Hyprland reload failed; restored the previous bindings"
+  fi
+  errors=$("$hyprctl_bin" configerrors 2>/dev/null || true)
+  if [[ -n ${errors//[[:space:]]/} ]]; then
+    [[ -n $backup ]] && cp -a -- "$backup" "$bindings_path" || rm -f -- "$bindings_path"
+    "$hyprctl_bin" reload >/dev/null 2>&1 || true
+    fail "Hyprland rejected the binding and the previous file was restored: $errors"
+  fi
+
+  jq -n --arg binding "$binding" --arg backup "$backup" --arg bindingsPath "$bindings_path" \
+    '{ok:true, binding:$binding, backup:$backup, bindingsPath:$bindingsPath}'
+}
+
+case "${1:-}" in
+  status)
+    status "${2:-}"
+    ;;
+  apply)
+    apply_binding "${2:-}" "${3:-}" "${4:-}"
+    ;;
+  *)
+    fail "usage: binding-helper <status PLUGIN_ID | apply BINDING FILE_HASH PLUGIN_ID>"
+    ;;
+esac

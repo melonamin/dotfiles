@@ -1,0 +1,9 @@
+include "%L"
+
+# --- Omarchy Compose: local rules ---
+<Multi_key> <m> <d> : "—" # Em dash
+<Multi_key> <a> <r> : "→" # Right arrow
+<Multi_key> <s> <h> : "¯\\_(ツ)_/¯" # Shrug
+<Multi_key> <c> <h> : "✓" # Check mark
+<Multi_key> <s> <p> : " " # Visible space preview
+<Multi_key> <n> <l> : "line one\\nline two" # Multiline snippet

@@ -1,0 +1,407 @@
+#!/bin/bash
+set -euo pipefail
+
+readonly MISSING_DIGEST="missing"
+readonly MAX_BACKUPS=10
+
+target=""
+if [[ ${1:-} == "--file" ]]; then
+  [[ $# -ge 3 ]] || { printf '%s\n' '{"ok":false,"error":"--file requires a path"}'; exit 2; }
+  target=$2
+  shift 2
+else
+  target=${XCOMPOSEFILE:-${HOME:+$HOME/.XCompose}}
+fi
+
+command_name=${1:-}
+shift || true
+
+json_escape() {
+  local value=${1-}
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  value=${value//$'\n'/\\n}
+  value=${value//$'\r'/\\r}
+  value=${value//$'\t'/\\t}
+  printf '%s' "$value"
+}
+
+fail_json() {
+  local message=${1:-unknown error}
+  local code=${2:-1}
+  printf '{"ok":false,"error":"%s"}\n' "$(json_escape "$message")"
+  exit "$code"
+}
+
+[[ -n $target ]] || fail_json "Compose target is empty" 2
+[[ $target == /* ]] || target="$(pwd -P)/$target"
+
+logical_symlink=false
+resolved_target=""
+
+resolve_target() {
+  logical_symlink=false
+  if [[ -L $target ]]; then
+    logical_symlink=true
+    [[ -e $target ]] || fail_json "Compose target is a broken or cyclic symlink" 2
+    resolved_target=$(readlink -f -- "$target") || fail_json "Could not resolve Compose symlink" 2
+  else
+    resolved_target=$(realpath -m -- "$target") || fail_json "Could not resolve Compose target" 2
+  fi
+  [[ -n $resolved_target && $resolved_target == /* ]] || fail_json "Resolved Compose target is invalid" 2
+}
+
+digest_for() {
+  local path=$1
+  if [[ -e $path ]]; then sha256sum -- "$path" | awk '{print $1}'
+  else printf '%s' "$MISSING_DIGEST"
+  fi
+}
+
+mode_for() {
+  local path=$1
+  if [[ -e $path ]]; then stat -c '%a' -- "$path"
+  else printf '%s' "missing"
+  fi
+}
+
+revision_value=""
+revision_from_state() {
+  local exists=$1 digest=$2 mode=$3 logical_type=$4 resolved=$5
+  printf 'exists=%s\0digest=%s\0mode=%s\0type=%s\0resolved=%s' \
+    "$exists" "$digest" "$mode" "$logical_type" "$resolved" | sha256sum | awk '{print $1}'
+}
+
+compute_revision() {
+  resolve_target
+  local exists=false digest mode logical_type
+  if [[ -e $resolved_target ]]; then exists=true; fi
+  digest=$(digest_for "$resolved_target")
+  mode=$(mode_for "$resolved_target")
+  if [[ $logical_symlink == true ]]; then logical_type=symlink
+  elif [[ $exists == true ]]; then logical_type=file
+  else logical_type=missing
+  fi
+  revision_value=$(revision_from_state "$exists" "$digest" "$mode" "$logical_type" "$resolved_target")
+}
+
+print_revision() {
+  local token digest mode exists=false writable=false directory writable_parent
+  compute_revision
+  token=$revision_value
+  digest=$(digest_for "$resolved_target")
+  mode=$(mode_for "$resolved_target")
+  if [[ -e $resolved_target ]]; then exists=true; fi
+  directory=$(dirname -- "$resolved_target")
+  writable_parent=$directory
+  while [[ ! -d $writable_parent && $writable_parent != / ]]; do writable_parent=$(dirname -- "$writable_parent"); done
+  if [[ -d $writable_parent && -w $writable_parent && -x $writable_parent ]]; then writable=true; fi
+  printf '{"ok":true,"revision":"%s","digest":"%s","exists":%s,"writable":%s,"mode":"%s","symlink":%s,"resolvedTarget":"%s"}\n' \
+    "$token" "$digest" "$exists" "$writable" "$mode" "$logical_symlink" "$(json_escape "$resolved_target")"
+}
+
+state_home=${XDG_STATE_HOME:-${HOME:+$HOME/.local/state}}
+[[ -n $state_home ]] || fail_json "State directory is unavailable" 2
+target_key=$(printf '%s' "$target" | sha256sum | awk '{print $1}')
+backup_dir="$state_home/omarchy-compose/backups/$target_key"
+rejected_dir="$state_home/omarchy-compose/rejected"
+lock_dir="$state_home/omarchy-compose/locks"
+lock_fd=""
+
+acquire_target_lock() {
+  local lock_key lock_path
+  [[ -n $resolved_target ]] || fail_json "Compose target has not been resolved" 6
+  lock_key=$(printf '%s' "$resolved_target" | sha256sum | awk '{print $1}')
+  mkdir -p -- "$lock_dir" || fail_json "could not create transaction lock directory" 6
+  chmod 700 -- "$lock_dir" || fail_json "could not secure transaction lock directory" 6
+  lock_path="$lock_dir/$lock_key.lock"
+  exec {lock_fd}> "$lock_path" || fail_json "could not open transaction lock" 6
+  chmod 600 -- "$lock_path" || fail_json "could not secure transaction lock" 6
+  flock -x "$lock_fd" || fail_json "could not acquire transaction lock" 6
+}
+
+sync_path() {
+  sync -f "$1" 2>/dev/null || true
+}
+
+sync_dir() {
+  sync -d "$1" 2>/dev/null || true
+}
+
+prune_backups() {
+  local metas=() index stem used
+  while IFS= read -r used; do
+    stem=${used%.used}
+    [[ ! -e $backup_dir/$stem.compose ]] || unlink "$backup_dir/$stem.compose" || return 1
+    unlink "$backup_dir/$used" || return 1
+  done < <(find "$backup_dir" -maxdepth 1 -type f -name '*.used' -printf '%f\n' 2>/dev/null)
+  mapfile -t metas < <(find "$backup_dir" -maxdepth 1 -type f -name '*.meta' -printf '%f\n' 2>/dev/null | sort -r)
+  for ((index=MAX_BACKUPS; index<${#metas[@]}; index++)); do
+    stem=${metas[$index]%.meta}
+    [[ ! -e $backup_dir/$stem.compose ]] || unlink "$backup_dir/$stem.compose" || return 1
+    unlink "$backup_dir/${metas[$index]}" || return 1
+  done
+}
+
+consume_backup() {
+  local stem=$1
+  [[ ! -e $backup_dir/$stem.compose ]] || unlink "$backup_dir/$stem.compose" || return 1
+  [[ ! -e $backup_dir/$stem.meta ]] || unlink "$backup_dir/$stem.meta" || return 1
+  [[ ! -e $backup_dir/$stem.used ]] || unlink "$backup_dir/$stem.used" || return 1
+  return 0
+}
+
+created_backup_stem=""
+create_backup() {
+  mkdir -p -- "$backup_dir" || fail_json "could not create backup directory" 6
+  chmod 700 -- "$backup_dir" || fail_json "could not secure backup directory" 6
+  local stamp stem existed=false mode=missing
+  stamp=$(date -u +%Y%m%dT%H%M%S%N)
+  stem="$stamp-$$-$RANDOM"
+  if [[ -e $resolved_target ]]; then
+    existed=true
+    mode=$(mode_for "$resolved_target")
+    cp --preserve=mode,timestamps -- "$resolved_target" "$backup_dir/$stem.compose" || fail_json "could not create Compose backup" 6
+  fi
+  printf 'existed=%s\nmode=%s\nresolved=%s\n' "$existed" "$mode" "$resolved_target" > "$backup_dir/$stem.meta" || fail_json "could not write backup metadata" 6
+  chmod 600 -- "$backup_dir/$stem.meta" || fail_json "could not secure backup metadata" 6
+  created_backup_stem=$stem
+}
+
+activation_healthy() {
+  omarchy restart xcompose >/dev/null 2>&1 && systemctl --user is-active --quiet omarchy-fcitx5.service
+}
+
+restore_snapshot() {
+  local existed=$1 snapshot=$2 mode=$3 directory temporary
+  directory=$(dirname -- "$resolved_target")
+  if [[ $existed == true ]]; then
+    temporary=$(mktemp --tmpdir="$directory" .omarchy-compose.rollback.XXXXXX) || return 1
+    cp -- "$snapshot" "$temporary" || { unlink "$temporary" 2>/dev/null || true; return 1; }
+    chmod "$mode" -- "$temporary" || { unlink "$temporary" 2>/dev/null || true; return 1; }
+    sync_path "$temporary"
+    mv -fT -- "$temporary" "$resolved_target" || { unlink "$temporary" 2>/dev/null || true; return 1; }
+    sync_dir "$directory"
+  elif [[ -e $resolved_target ]]; then
+    unlink "$resolved_target" || return 1
+    sync_dir "$directory"
+  fi
+}
+
+apply_candidate() {
+  local candidate=$1 previous_existed=$2 previous_snapshot=$3 previous_mode=$4 operation=$5 expected_guard=$6 replacement_mode=$7 result_meta=${8:-}
+  local original_resolved=$resolved_target directory temporary rejected healthy=false rollback_healthy=false written_guard="" written_type
+  directory=$(dirname -- "$resolved_target")
+  mkdir -p -- "$directory" || { printf '%s\n' '{"ok":false,"error":"could not create Compose directory"}'; return 6; }
+  temporary=$(mktemp --tmpdir="$directory" .omarchy-compose.apply.XXXXXX) || { printf '%s\n' '{"ok":false,"error":"could not create transaction file"}'; return 6; }
+  trap '[[ -n ${temporary:-} && -e ${temporary:-} ]] && unlink "$temporary"' RETURN
+  if ! cp -- "$candidate" "$temporary"; then printf '%s\n' '{"ok":false,"error":"could not stage candidate"}'; return 6; fi
+  if [[ $previous_existed == true ]]; then
+    if ! chmod "$replacement_mode" -- "$temporary"; then printf '%s\n' '{"ok":false,"error":"could not preserve Compose permissions"}'; return 6; fi
+  elif ! chmod 600 -- "$temporary"; then printf '%s\n' '{"ok":false,"error":"could not secure Compose file"}'; return 6
+  fi
+  sync_path "$temporary"
+
+  # Close both the content-edit and retargeting windows immediately before the
+  # atomic rename. Reading a candidate from stdin can take arbitrarily long.
+  compute_revision
+  if [[ $resolved_target != "$original_resolved" || $revision_value != "$expected_guard" ]]; then
+    printf '%s\n' '{"ok":false,"error":"stale revision"}'
+    return 3
+  fi
+  if [[ $logical_symlink == true ]]; then written_type=symlink; else written_type=file; fi
+  written_guard=$(revision_from_state true "$(digest_for "$temporary")" "$(mode_for "$temporary")" "$written_type" "$resolved_target")
+  if [[ -n $result_meta ]]; then
+    printf 'result_revision=%s\n' "$written_guard" >> "$result_meta" || {
+      printf '%s\n' '{"ok":false,"error":"could not bind backup to saved result"}'
+      return 6
+    }
+    sync_path "$result_meta"
+  fi
+  if ! mv -fT -- "$temporary" "$resolved_target"; then
+    printf '%s\n' '{"ok":false,"error":"atomic Compose rename failed"}'
+    return 6
+  fi
+  temporary=""
+  sync_dir "$directory"
+
+  if activation_healthy; then
+    healthy=true
+    compute_revision
+    if [[ $resolved_target != "$original_resolved" || $revision_value != "$written_guard" ]]; then
+      printf '{"ok":false,"error":"Compose file changed externally during activation","operation":"%s","rolledBack":false,"concurrentChange":true,"fcitx5Healthy":true,"revision":"%s"}\n' \
+        "$operation" "$revision_value"
+      return 7
+    fi
+    printf '{"ok":true,"operation":"%s","revision":"%s","activated":true,"fcitx5Healthy":true}\n' \
+      "$operation" "$revision_value"
+    return 0
+  fi
+
+  local rejected_retained=false rolled_back=false
+  mkdir -p -- "$rejected_dir" && chmod 700 -- "$rejected_dir" || true
+  rejected="$rejected_dir/$(date -u +%Y%m%dT%H%M%S%N)-$$.compose"
+  if cp -- "$candidate" "$rejected" 2>/dev/null && chmod 600 -- "$rejected"; then rejected_retained=true
+  else rejected=""
+  fi
+  compute_revision
+  if [[ $resolved_target != "$original_resolved" || $revision_value != "$written_guard" ]]; then
+    printf '{"ok":false,"error":"activation failed; Compose file changed externally and was not rolled back","operation":"%s","rolledBack":false,"concurrentChange":true,"fcitx5Healthy":false,"rejectedCandidate":"%s","rejectedRetained":%s,"revision":"%s"}\n' \
+      "$operation" "$(json_escape "$rejected")" "$rejected_retained" "$revision_value"
+    return 7
+  fi
+  if restore_snapshot "$previous_existed" "$previous_snapshot" "$previous_mode"; then
+    rolled_back=true
+    if activation_healthy; then rollback_healthy=true; fi
+  fi
+  compute_revision
+  printf '{"ok":false,"error":"activation failed","operation":"%s","rolledBack":%s,"fcitx5Healthy":%s,"rejectedCandidate":"%s","rejectedRetained":%s,"revision":"%s"}\n' \
+    "$operation" "$rolled_back" "$rollback_healthy" "$(json_escape "$rejected")" "$rejected_retained" "$revision_value"
+  [[ $rolled_back == true ]] && return 4
+  return 7
+}
+
+case "$command_name" in
+  revision)
+    [[ $# -eq 0 ]] || fail_json "revision takes no arguments" 2
+    print_revision
+    ;;
+
+  apply)
+    [[ $# -eq 1 && -n ${1:-} ]] || fail_json "apply requires the expected revision" 2
+    expected=$1
+    compute_revision
+    current=$revision_value
+    [[ $current == "$expected" ]] || fail_json "stale revision" 3
+    directory=$(dirname -- "$resolved_target")
+    mkdir -p -- "$directory"
+    candidate=$(mktemp --tmpdir="$directory" .omarchy-compose.candidate.XXXXXX)
+    trap '[[ -e ${candidate:-} ]] && unlink "$candidate"' EXIT
+    if [[ ${COMPOSE_INPUT_BASE64:-0} == 1 ]]; then
+      IFS= read -r encoded_candidate || fail_json "missing candidate content" 2
+      printf '%s' "$encoded_candidate" | base64 -d > "$candidate" || fail_json "invalid candidate encoding" 2
+    else
+      cat > "$candidate"
+    fi
+    compute_revision
+    acquire_target_lock
+    compute_revision
+    [[ $revision_value == "$expected" ]] || fail_json "stale revision" 3
+    previous_existed=false
+    previous_mode=missing
+    previous_snapshot=""
+    if [[ -e $resolved_target ]]; then
+      previous_existed=true
+      previous_mode=$(mode_for "$resolved_target")
+    fi
+    create_backup
+    backup_stem=$created_backup_stem
+    if [[ $previous_existed == true ]]; then previous_snapshot="$backup_dir/$backup_stem.compose"; fi
+    if apply_candidate "$candidate" "$previous_existed" "$previous_snapshot" "$previous_mode" apply "$expected" "$previous_mode" "$backup_dir/$backup_stem.meta"; then
+      prune_backups || true
+    else
+      result=$?
+      [[ $result == 7 ]] || consume_backup "$backup_stem" || true
+      exit "$result"
+    fi
+    ;;
+
+  undo)
+    [[ $# -eq 1 && -n ${1:-} ]] || fail_json "undo requires the expected revision" 2
+    expected=$1
+    compute_revision
+    acquire_target_lock
+    compute_revision
+    current=$revision_value
+    [[ $current == "$expected" ]] || fail_json "stale revision" 3
+    [[ -d $backup_dir ]] || fail_json "no backup available" 5
+    meta_name=""
+    matching_target=false
+    while IFS= read -r candidate_meta; do
+      candidate_resolved=$(sed -n 's/^resolved=//p' "$backup_dir/$candidate_meta")
+      candidate_result=$(sed -n 's/^result_revision=//p' "$backup_dir/$candidate_meta")
+      if [[ $candidate_resolved == "$resolved_target" ]]; then
+        matching_target=true
+        if [[ -n $candidate_result && $candidate_result == "$current" ]]; then meta_name=$candidate_meta; break; fi
+      fi
+    done < <(find "$backup_dir" -maxdepth 1 -type f -name '*.meta' -printf '%f\n' | sort -r)
+    if [[ -z $meta_name && $matching_target == true ]]; then
+      fail_json "current Compose file does not match an undoable saved result" 5
+    fi
+    [[ -n $meta_name ]] || fail_json "no backup available" 5
+    stem=${meta_name%.meta}
+    backup_existed=false
+    backup_mode=missing
+    backup_resolved=""
+    backup_result=""
+    while IFS='=' read -r key value; do
+      case "$key" in
+        existed) backup_existed=$value ;;
+        mode) backup_mode=$value ;;
+        resolved) backup_resolved=$value ;;
+        result_revision) backup_result=$value ;;
+      esac
+    done < "$backup_dir/$meta_name"
+    [[ $backup_resolved == "$resolved_target" ]] || fail_json "backup does not match the current target" 5
+    [[ $backup_result == "$current" ]] || fail_json "current Compose file does not match the selected backup" 5
+    if [[ $backup_existed == true ]]; then
+      [[ -f $backup_dir/$stem.compose ]] || fail_json "backup content is missing" 5
+      undo_candidate="$backup_dir/$stem.compose"
+    else
+      undo_candidate=$(mktemp --tmpdir="$(dirname -- "$resolved_target")" .omarchy-compose.empty.XXXXXX)
+    fi
+
+    current_snapshot=$(mktemp --tmpdir="$(dirname -- "$resolved_target")" .omarchy-compose.before-undo.XXXXXX)
+    trap '[[ -e ${current_snapshot:-} ]] && unlink "$current_snapshot"; [[ ${backup_existed:-true} == false && -e ${undo_candidate:-} ]] && unlink "$undo_candidate"' EXIT
+    current_existed=false
+    current_mode=missing
+    if [[ -e $resolved_target ]]; then
+      current_existed=true
+      current_mode=$(mode_for "$resolved_target")
+      cp -- "$resolved_target" "$current_snapshot"
+    fi
+
+    if [[ $backup_existed == true ]]; then
+      if apply_candidate "$undo_candidate" "$current_existed" "$current_snapshot" "$current_mode" undo "$expected" "$backup_mode" ""; then
+        consume_backup "$stem"
+      else
+        exit $?
+      fi
+    else
+      compute_revision
+      [[ $revision_value == "$expected" ]] || fail_json "stale revision" 3
+      undo_original_resolved=$resolved_target
+      undo_written_guard=$(revision_from_state false "$MISSING_DIGEST" missing missing "$resolved_target")
+      restore_snapshot false "" missing
+      if activation_healthy; then
+        compute_revision
+        if [[ $resolved_target != "$undo_original_resolved" || $revision_value != "$undo_written_guard" ]]; then
+          printf '{"ok":false,"error":"Compose file changed externally during activation","operation":"undo","rolledBack":false,"concurrentChange":true,"fcitx5Healthy":true,"revision":"%s"}\n' "$revision_value"
+          exit 7
+        fi
+        consume_backup "$stem"
+        printf '{"ok":true,"operation":"undo","revision":"%s","activated":true,"fcitx5Healthy":true}\n' "$revision_value"
+      else
+        compute_revision
+        if [[ $revision_value != "$undo_written_guard" ]]; then
+          printf '{"ok":false,"error":"activation failed; Compose file changed externally and was not rolled back","operation":"undo","rolledBack":false,"concurrentChange":true,"revision":"%s"}\n' "$revision_value"
+          exit 7
+        fi
+        if restore_snapshot "$current_existed" "$current_snapshot" "$current_mode"; then
+          activation_healthy || true
+          compute_revision
+          printf '{"ok":false,"error":"activation failed","operation":"undo","rolledBack":true,"revision":"%s"}\n' "$revision_value"
+          exit 4
+        fi
+        recovery_snapshot=$current_snapshot
+        current_snapshot=""
+        compute_revision
+        printf '{"ok":false,"error":"activation failed and the previous Compose file could not be restored","operation":"undo","rolledBack":false,"recoverySnapshot":"%s","recoveryRetained":true,"revision":"%s"}\n' \
+          "$(json_escape "$recovery_snapshot")" "$revision_value"
+        exit 7
+      fi
+    fi
+    ;;
+
+  *) fail_json "usage: compose-file [--file PATH] {revision|apply EXPECTED|undo EXPECTED}" 2 ;;
+esac

@@ -1,0 +1,4 @@
+# before
+<Multi_key> <r> : "root-before"
+include "nested/first.compose"
+<Multi_key> <z> : "root-after"

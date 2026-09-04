@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+const fs = require('node:fs')
+const path = require('node:path')
+
+const root = path.resolve(__dirname, '..')
+const Model = require(path.join(root, 'ComposeModel.js'))
+const includeDir = process.argv[2] || '/usr/include/X11'
+const headers = ['keysymdef.h', 'XF86keysym.h', 'Sunkeysym.h', 'DECkeysym.h', 'HPkeysym.h']
+const raw = headers.map(name => fs.readFileSync(path.join(includeDir, name), 'utf8')).join('\n')
+const definitions = Model.parseKeysymDefinitions(raw)
+
+process.stdout.write([
+  '# Generated from xorgproto keysym headers by scripts/generate-keysyms.',
+  '# The bundled table keeps runtime conversion and validation independent of development headers.',
+  ...Object.keys(definitions).sort().map(name => name + '\t' + (definitions[name] === null ? '-' : definitions[name].toString(16)))
+].join('\n') + '\n')

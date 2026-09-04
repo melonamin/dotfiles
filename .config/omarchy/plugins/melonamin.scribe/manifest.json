@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "id": "melonamin.scribe",
+  "name": "SecondScribe Capture",
+  "version": "1.0.0",
+  "author": "melonamin",
+  "license": "MIT",
+  "description": "Start and stop SecondScribe meeting captures from the Omarchy bar",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "SecondScribe Capture",
+    "description": "Capture status, likely calendar meetings, and start/stop/pause controls for the SecondScribe capture daemon.",
+    "category": "Productivity",
+    "aliases": ["scribe", "secondscribe", "capture"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "cliPath": "secondscribe-capture",
+      "profileDir": "",
+      "refreshIntervalSec": 10
+    },
+    "schema": [
+      {
+        "key": "cliPath",
+        "type": "string",
+        "label": "Capture CLI path",
+        "defaultValue": "secondscribe-capture"
+      },
+      {
+        "key": "profileDir",
+        "type": "string",
+        "label": "Profile directory (blank for default)",
+        "defaultValue": ""
+      },
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Refresh interval (seconds)",
+        "min": 2,
+        "max": 3600,
+        "step": 1,
+        "defaultValue": 10
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+#!/bin/sh
+# agterm Alt-j overlay: open the shared jot pad, the equivalent of tmux's
+# `nvim ~/.local/share/jot.md` display-popup. Kept as a no-space wrapper so the
+# agterm keymap parser passes it as a single token.
+exec /usr/bin/nvim "$HOME/.local/share/jot.md"

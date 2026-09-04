@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# Mimics the secondscribe-capture CLI surface the widget depends on:
+#   fake-capture-cli [--profile DIR] --json <command> [args]
+# State lives in the profile directory so a test can drive a full lifecycle.
+set -euo pipefail
+
+profile=""
+json=0
+args=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --profile) profile="$2"; shift 2 ;;
+    --json) json=1; shift ;;
+    *) args+=("$1"); shift ;;
+  esac
+done
+
+[[ $json -eq 1 ]] || { echo "fake CLI requires --json" >&2; exit 5; }
+[[ -n $profile ]] || { echo "fake CLI requires --profile" >&2; exit 5; }
+mkdir -p "$profile"
+
+state_file="$profile/state"
+if [[ ! -f $state_file ]]; then
+  printf 'STATUS=idle\nTITLE=\nSTARTED_MS=0\nPAUSED_AT_MS=0\nPAUSED_TOTAL_MS=0\n' >"$state_file"
+fi
+# shellcheck disable=SC1090
+source "$state_file"
+
+fail() {
+  echo "{\"error\":{\"code\":\"$1\",\"message\":\"$2\"}}" >&2
+  exit "$3"
+}
+
+save_state() {
+  printf 'STATUS=%s\nTITLE=%q\nSTARTED_MS=%s\nPAUSED_AT_MS=%s\nPAUSED_TOTAL_MS=%s\n' \
+    "$STATUS" "$TITLE" "$STARTED_MS" "$PAUSED_AT_MS" "$PAUSED_TOTAL_MS" >"$state_file"
+}
+
+meetings_json() {
+  cat <<'JSON'
+[{"id":"m1","title":"Weekly sync","startsAt":"2026-08-26T14:30:00Z","participantCount":4},
+ {"id":"m2","title":"Design review","startsAt":"2026-08-26T16:00:00Z","participantCount":6}]
+JSON
+}
+
+status_json() {
+  local title_json="null"
+  [[ -z $TITLE ]] || title_json="\"$TITLE\""
+  local started_json="null"
+  [[ $STARTED_MS == 0 ]] || started_json="$STARTED_MS"
+  local paused_json="null"
+  [[ $PAUSED_AT_MS == 0 ]] || paused_json="$PAUSED_AT_MS"
+  cat <<JSON
+{"status":"$STATUS","captureStartedAtMs":$started_json,"pausedAtMs":$paused_json,
+ "pausedTotalMs":$PAUSED_TOTAL_MS,"meetingTitle":$title_json,
+ "likelyMeetings":$(meetings_json),
+ "microphonePermission":true,"systemAudioPermission":true,"transcriptionDegraded":false,
+ "serverNotice":null,"credentialExpiryWarning":false,"exposureSummary":"local",
+ "serverUrl":"https://scribe.test","deviceName":"fake","language":"en-US",
+ "modelStatus":"ready","microphones":[],"selectedMicrophoneName":null,
+ "activeMicrophoneName":null,"microphoneFallbackNotice":null}
+JSON
+}
+
+[[ ! -f "$profile/daemon-down" ]] || fail daemon_not_running "capture daemon is not running" 3
+
+command_name="${args[0]:-}"
+case "$command_name" in
+  status)
+    status_json
+    ;;
+  meetings)
+    meetings_json
+    ;;
+  start)
+    [[ $STATUS == idle ]] || fail capture_active "a capture is already active" 4
+    if [[ ${args[1]:-} == --meeting ]]; then
+      case "${args[2]:-}" in
+        m1) TITLE="Weekly sync" ;;
+        m2) TITLE="Design review" ;;
+        *) fail unknown_meeting "no such meeting" 4 ;;
+      esac
+    elif [[ ${args[1]:-} == --title ]]; then
+      TITLE="${args[2]:-}"
+      [[ -n $TITLE ]] || fail invalid_params "title must not be empty" 4
+    else
+      fail invalid_params "start requires --meeting or --title" 4
+    fi
+    STATUS=recording
+    STARTED_MS=$(($(date +%s) * 1000))
+    save_state
+    status_json
+    ;;
+  pause)
+    [[ $STATUS == recording || $STATUS == audio_only ]] || fail not_recording "no capture to pause" 4
+    STATUS=paused
+    PAUSED_AT_MS=$(($(date +%s) * 1000))
+    save_state
+    status_json
+    ;;
+  resume)
+    [[ $STATUS == paused ]] || fail not_paused "no paused capture" 4
+    STATUS=recording
+    PAUSED_TOTAL_MS=$((PAUSED_TOTAL_MS + ($(date +%s) * 1000) - PAUSED_AT_MS))
+    PAUSED_AT_MS=0
+    save_state
+    status_json
+    ;;
+  stop)
+    [[ $STATUS != idle ]] || fail not_recording "no capture to stop" 4
+    STATUS=idle
+    TITLE=""
+    STARTED_MS=0
+    PAUSED_AT_MS=0
+    PAUSED_TOTAL_MS=0
+    save_state
+    status_json
+    ;;
+  *)
+    fail invalid_params "unknown command: $command_name" 5
+    ;;
+esac

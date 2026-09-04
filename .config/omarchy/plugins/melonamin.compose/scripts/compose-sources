@@ -1,0 +1,176 @@
+#!/bin/bash
+set -euo pipefail
+
+root_path=""
+omarchy_path=${OMARCHY_PATH:-${HOME:+$HOME/.local/share/omarchy}}
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --root) [[ $# -ge 2 ]] || exit 2; root_path=$2; shift 2 ;;
+    --omarchy) [[ $# -ge 2 ]] || exit 2; omarchy_path=$2; shift 2 ;;
+    *) exit 2 ;;
+  esac
+done
+
+[[ -n $root_path ]] || exit 2
+[[ $root_path == /* ]] || root_path="$(pwd -P)/$root_path"
+root_path=$(realpath -m -- "$root_path")
+
+system_dir=/usr/share/X11/locale
+locale_name=${LC_ALL:-${LC_CTYPE:-${LANG:-C.UTF-8}}}
+compose_relative=""
+
+resolve_locale_alias() {
+  local wanted=$1 alias_target="" normalized=$1 iteration
+  for ((iteration=0; iteration<8; iteration++)); do
+    [[ -r $system_dir/locale.alias ]] || break
+    alias_target=$(awk -v wanted="$normalized" '
+      /^[[:space:]]*#/ || NF < 2 { next }
+      { alias=$1; sub(/:$/, "", alias); if (alias == wanted) { print $2; exit } }
+    ' "$system_dir/locale.alias")
+    [[ -n $alias_target && $alias_target != "$normalized" ]] || break
+    normalized=$alias_target
+  done
+  if [[ $normalized =~ ^(.+)\.utf-?8(@.*)?$ ]]; then normalized=${BASH_REMATCH[1]}.UTF-8${BASH_REMATCH[2]:-}; fi
+  printf '%s' "$normalized"
+}
+
+locale_name=$(resolve_locale_alias "$locale_name")
+if [[ -r $system_dir/compose.dir ]]; then
+  compose_relative=$(awk -v wanted="$locale_name" '$2 == wanted { print $1; exit }' "$system_dir/compose.dir")
+  if [[ -z $compose_relative && $locale_name == *@* ]]; then
+    compose_relative=$(awk -v wanted="${locale_name%%@*}" '$2 == wanted { print $1; exit }' "$system_dir/compose.dir")
+  fi
+  if [[ -z $compose_relative && $locale_name == C ]]; then
+    compose_relative=$(awk '$2 == "C.UTF-8" { print $1; exit }' "$system_dir/compose.dir")
+  fi
+fi
+locale_compose=${compose_relative:+$system_dir/$compose_relative}
+[[ -n $locale_compose ]] || locale_compose="$system_dir/en_US.UTF-8/Compose"
+
+json_escape() {
+  local value=${1-}
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  value=${value//$'\n'/\\n}
+  value=${value//$'\r'/\\r}
+  value=${value//$'\t'/\\t}
+  printf '%s' "$value"
+}
+
+expand_include() {
+  local value=$1 containing=$2 marker='__OMARCHY_COMPOSE_PERCENT__'
+  value=${value//%%/$marker}
+  value=${value//%H/${HOME:-}}
+  value=${value//%S/$system_dir}
+  value=${value//%L/$locale_compose}
+  value=${value//$marker/%}
+  if [[ $value != /* ]]; then value="$(dirname -- "$containing")/$value"; fi
+  realpath -m -- "$value"
+}
+
+decode_compose_string() {
+  local raw=$1 decoded="" character next digits part index=0 length=${#1}
+  while (( index < length )); do
+    character=${raw:index:1}
+    index=$((index + 1))
+    if [[ $character != \\ ]]; then
+      decoded+=$character
+      continue
+    fi
+    (( index < length )) || break
+    next=${raw:index:1}
+    index=$((index + 1))
+    if [[ $next == x ]]; then
+      digits=""
+      while (( index < length && ${#digits} < 2 )) && [[ ${raw:index:1} =~ [0-9a-fA-F] ]]; do
+        digits+=${raw:index:1}
+        index=$((index + 1))
+      done
+      [[ -n $digits ]] || continue
+      printf -v part '%b' "\\x$digits"
+      decoded+=$part
+    elif [[ $next =~ [0-7] ]]; then
+      digits=$next
+      while (( index < length && ${#digits} < 3 )) && [[ ${raw:index:1} =~ [0-7] ]]; do
+        digits+=${raw:index:1}
+        index=$((index + 1))
+      done
+      printf -v part '%b' "\\0$digits"
+      decoded+=$part
+    else
+      decoded+=$next
+    fi
+  done
+  printf '%s' "$decoded"
+}
+
+declare -A seen=()
+declare -a source_json=()
+declare -a include_json=()
+source_count=0
+include_pattern='^[[:space:]]*include[[:space:]]+"((\\.|[^"\\])*)"[[:space:]]*(#.*)?$'
+
+load_source() {
+  local path=$1 depth=${2:-0} raw_b64 digest line include child
+  (( depth <= 32 )) || return 0
+  [[ -z ${seen[$path]+x} ]] || return 0
+  seen[$path]=1
+  (( source_count < 256 )) || return 0
+  source_count=$((source_count + 1))
+  [[ -r $path ]] || return 0
+  raw_b64=$(base64 -w0 -- "$path")
+  digest=$(printf '%s' "$raw_b64" | base64 -d | sha256sum | awk '{print $1}')
+  source_json+=("{\"path\":\"$(json_escape "$path")\",\"contentB64\":\"$raw_b64\",\"digest\":\"$digest\"}")
+  while IFS= read -r line || [[ -n $line ]]; do
+    if [[ $line =~ $include_pattern ]]; then
+      include=$(decode_compose_string "${BASH_REMATCH[1]}")
+      child=$(expand_include "$include" "$path")
+      include_json+=("{\"from\":\"$(json_escape "$path")\",\"template\":\"$(json_escape "$include")\",\"resolved\":\"$(json_escape "$child")\"}")
+      load_source "$child" $((depth + 1))
+    fi
+  done < "$path"
+}
+
+if [[ -r $root_path ]]; then
+  load_source "$root_path" 0
+else
+  synthetic_root=$'include "%L"\n'
+  synthetic_b64=$(printf '%s' "$synthetic_root" | base64 -w0)
+  if [[ -e $root_path || -L $root_path ]]; then
+    source_json+=("{\"path\":\"$(json_escape "$root_path")\",\"contentB64\":\"$synthetic_b64\",\"digest\":\"unreadable\",\"unreadableRoot\":true}")
+  else
+    source_json+=("{\"path\":\"$(json_escape "$root_path")\",\"contentB64\":\"$synthetic_b64\",\"digest\":\"missing\",\"missingRoot\":true}")
+  fi
+  include_json+=("{\"from\":\"$(json_escape "$root_path")\",\"template\":\"%L\",\"resolved\":\"$(json_escape "$locale_compose")\"}")
+  load_source "$locale_compose" 1
+fi
+
+keysym_b64=""
+keysym_headers=(keysymdef.h XF86keysym.h Sunkeysym.h DECkeysym.h HPkeysym.h)
+keysym_fallback="$script_dir/../data/keysyms.tsv"
+keysym_include_dir=${COMPOSE_X11_INCLUDE_DIR:-/usr/include/X11}
+[[ -r $keysym_fallback ]] || exit 3
+keysym_b64=$(
+  {
+    sed -n '/^[A-Za-z0-9_][A-Za-z0-9_]*[[:space:]]/p' "$keysym_fallback"
+    for header in "${keysym_headers[@]}"; do
+      [[ ! -r $keysym_include_dir/$header ]] || sed -n '/^#define[[:space:]]/p' "$keysym_include_dir/$header"
+    done
+  } | base64 -w0
+)
+
+printf '{"ok":true,"rootPath":"%s","home":"%s","system":"%s","localeCompose":"%s","omarchyPath":"%s","keysymB64":"%s","sources":[' \
+  "$(json_escape "$root_path")" "$(json_escape "${HOME:-}")" "$(json_escape "$system_dir")" \
+  "$(json_escape "$locale_compose")" "$(json_escape "$omarchy_path")" "$keysym_b64"
+for ((index=0; index<${#source_json[@]}; index++)); do
+  (( index == 0 )) || printf ','
+  printf '%s' "${source_json[$index]}"
+done
+printf '],"includes":['
+for ((index=0; index<${#include_json[@]}; index++)); do
+  (( index == 0 )) || printf ','
+  printf '%s' "${include_json[$index]}"
+done
+printf ']}\n'

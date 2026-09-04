@@ -1,0 +1,117 @@
+{
+  // Omarchy Leader's mutable copy lives at:
+  // ~/.config/omarchy/leader/config.jsonc
+  "version": 1,
+
+  "ui": {
+    "start": "trail",
+    "onPause": "board",
+    "onError": "board",
+    "sticky": "corner",
+    "expandAfterMs": 700,
+    "sequenceTimeoutMs": 0,
+  },
+
+  "providers": {
+    "timeoutMs": 2500,
+  },
+
+  "items": {
+    "apps": {
+      "key": "a",
+      "label": "Apps",
+      "icon": "󰀻",
+    },
+    "apps.browser": {
+      "key": "b",
+      "label": "Browser",
+      "icon": "",
+      "action": { "type": "omarchy", "args": ["launch", "browser"] },
+    },
+    "apps.terminal": {
+      "key": "t",
+      "label": "Terminal",
+      "icon": "",
+      "action": { "type": "omarchy", "args": ["launch", "terminal"] },
+    },
+    "apps.editor": {
+      "key": "e",
+      "label": "Editor",
+      "icon": "",
+      "action": { "type": "shell", "command": "omarchy launch editor \"$HOME\"" },
+    },
+    "apps.files": {
+      "key": "f",
+      "label": "Files",
+      "icon": "",
+      "action": { "type": "omarchy", "args": ["launch", "nautilus"] },
+    },
+
+    "capture": {
+      "key": "c",
+      "label": "Capture",
+      "icon": "",
+    },
+    "capture.region": {
+      "key": "r",
+      "label": "Region screenshot",
+      "action": { "type": "omarchy", "args": ["capture", "screenshot", "region"] },
+    },
+    "capture.window": {
+      "key": "w",
+      "label": "Window screenshot",
+      "action": { "type": "omarchy", "args": ["capture", "screenshot", "windows"] },
+    },
+    "capture.text": {
+      "key": "t",
+      "label": "Capture text",
+      "action": { "type": "omarchy", "args": ["capture", "text"] },
+    },
+
+    "system": {
+      "key": "s",
+      "label": "System",
+      "icon": "",
+    },
+    "system.lock": {
+      "key": "l",
+      "label": "Lock",
+      "icon": "",
+      "action": { "type": "omarchy", "args": ["system", "lock"] },
+    },
+    "system.nightlight": {
+      "key": "n",
+      "label": "Toggle nightlight",
+      "icon": "󰖔",
+      "action": { "type": "omarchy", "args": ["toggle", "nightlight"] },
+      "sticky": true,
+    },
+    "system.menu": {
+      "key": "p",
+      "label": "Power menu",
+      "icon": "",
+      "action": {
+        "type": "command",
+        "argv": ["omarchy-menu", "toggle", "system"]
+      },
+    },
+
+    "work": {
+      "key": "w",
+      "label": "Workflows",
+      "icon": "󱓞",
+    },
+    "work.focus": {
+      "key": "f",
+      "label": "Focus mode",
+      "action": {
+        "type": "workflow",
+        "steps": [
+          { "type": "omarchy", "args": ["toggle", "notification", "silencing"] },
+          { "type": "omarchy", "args": ["toggle", "nightlight"] }
+        ]
+      },
+      "notify": "on-error",
+    },
+  },
+}

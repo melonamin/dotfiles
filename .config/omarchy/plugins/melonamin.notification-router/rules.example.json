@@ -1,0 +1,57 @@
+{
+  "rules": [
+    {
+      "name": "Slack DMs go to my phone",
+      "match": { "app": "Slack", "summary": "/^DM from/i" },
+      "then": [
+        { "silence": true },
+        { "dot": "#e5c07b" },
+        { "ntfy": { "topic": "my-topic", "priority": 4, "message": "{summary} — {body}" } }
+      ]
+    },
+
+    {
+      "name": "Coding agents: a bell in the bar, no toast",
+      "match": {
+        "app": "notify-send",
+        "summary": "/^(claude|codex|gemini|aider|amp|cursor|goose|opencode)\\b/i"
+      },
+      "then": [
+        { "silence": true },
+        { "dot": "#ffd75f" }
+      ]
+    },
+
+    {
+      "name": "Mute the music player entirely",
+      "match": { "app": "/spotify|rhythmbox/i" },
+      "then": [ { "silence": true } ]
+    },
+
+    {
+      "name": "Build failures are loud",
+      "match": { "summary": "/fail(ed|ure)?/i" },
+      "then": [
+        { "dot": "#e06c75" },
+        { "sound": "dialog-warning" }
+      ]
+    },
+
+    {
+      "name": "Log everything to a webhook",
+      "match": {},
+      "then": [ { "webhook": { "url": "https://example.com/notifications", "json": {} } } ]
+    },
+
+    {
+      "name": "Silence the whole app, except the messages that matter",
+      "match": { "app": "Jira" },
+      "then": [ { "silence": true } ]
+    },
+    {
+      "name": "...rescued here, because later rules win",
+      "match": { "app": "Jira", "summary": "/assigned to you/i" },
+      "then": [ { "silence": false }, { "dot": "#61afef" } ]
+    }
+  ]
+}

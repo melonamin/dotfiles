@@ -1,0 +1,8 @@
+# User-selected AUR packages beyond a fresh Omarchy install.
+dotool
+gws
+handy-bin
+ioq3-bin
+revdiff
+scc-bin
+vcmi
