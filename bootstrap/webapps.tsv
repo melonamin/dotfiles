@@ -1,11 +1,11 @@
-# name<TAB>URL. Icons are fetched from the site at install time.
-BB	https://bb.wwh.lol/
-ChatGPT	https://chatgpt.com/
-Figma	https://figma.com/
-Fizzy	https://app.fizzy.do/
-GitHub	https://github.com/
-Meet	https://meet.google.com
-Music	https://music.apple.com
-Notion	https://notion.so
-Slack	https://t1a.slack.com
-SS	https://chat.secondstack.t1a.io/
+# name<TAB>URL<TAB>icon asset
+BB	https://bb.wwh.lol/	BB.png
+ChatGPT	https://chatgpt.com/	ChatGPT.png
+Figma	https://figma.com/	Figma.png
+Fizzy	https://app.fizzy.do/	Fizzy.png
+GitHub	https://github.com/	GitHub.png
+Meet	https://meet.google.com	Meet.png
+Music	https://music.apple.com	Music.png
+Notion	https://notion.so	Notion.png
+Slack	https://t1a.slack.com	Slack.png
+SS	https://chat.secondstack.t1a.io/	SS.png

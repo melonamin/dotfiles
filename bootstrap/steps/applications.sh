@@ -3,12 +3,14 @@ set -euo pipefail
 
 source "$DOTFILES_ROOT/bootstrap/lib.sh"
 
-while IFS=$'\t' read -r name url; do
+while IFS=$'\t' read -r name url icon; do
   desktop="$HOME/.local/share/applications/$name.desktop"
   if [[ -f $desktop ]]; then
     note "ok: web app $name"
   elif is_apply; then
-    omarchy webapp install "$name" "$url" "" "" ""
+    icon="$DOTFILES_ROOT/bootstrap/assets/webapp-icons/$icon"
+    [[ -f $icon ]] || die "web app icon is unavailable: $icon"
+    omarchy webapp install "$name" "$url" "$icon" "" ""
     note "installed: web app $name"
   else
     note "missing: web app $name"
