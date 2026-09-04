@@ -8,11 +8,15 @@ is_apply && mkdir -p "$themes_dir"
 
 install_wallhaven_theme() {
   local name="$1" wall_id="$2" target="$themes_dir/$name"
-  local metadata image_url extension image tmp shard downloaded=false
+  local metadata image_url extension image tmp shard downloaded=false bundled
 
   is_apply && mkdir -p "$target/backgrounds"
   copy_file "$BOOTSTRAP_DIR/themes/$name/colors.toml" "$target/colors.toml"
   copy_file "$BOOTSTRAP_DIR/themes/$name/icons.theme" "$target/icons.theme"
+
+  while IFS= read -r -d '' bundled; do
+    copy_file "$bundled" "$target/backgrounds/$(basename "$bundled")"
+  done < <(find "$BOOTSTRAP_DIR/themes/$name/backgrounds" -maxdepth 1 -type f -print0 2>/dev/null)
 
   if [[ -d $target/backgrounds ]] &&
       find "$target/backgrounds" -maxdepth 1 -type f | grep -q .; then
