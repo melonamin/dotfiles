@@ -1,0 +1,12 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index 778e51c..e14694c 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -8,7 +8,7 @@ arch=('x86_64' 'i686' 'aarch64')
+ url="https://gitlab.com/linuxbombay/ioq3"
+ license=('GPL')
+-depends=('curl' 'freetype2' 'libjpeg' 'libvorbis' 'openal' 'opus' 'opusfile' 'sdl2' 'zlib')
++depends=('curl' 'freetype2' 'libjpeg-turbo' 'libvorbis' 'openal' 'opus' 'opusfile' 'sdl2' 'zlib')
+ makedepends=('unzip')
+ sha256sums_x86_64=('71a1cba96cc2957afe07636a29ea814798d368101ffed47bba676b8ef3d321c6')
+ sha256sums_i686=('a9fc45aab90063a8873891e90c637262a8daec66077a8a163253555555607807')
