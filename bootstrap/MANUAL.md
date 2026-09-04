@@ -10,6 +10,8 @@ items you use:
   `melonamin.multi-agents` plugin.
 - Configure Home Assistant and any other plugin credentials locally.
 - Download Handy/Voxtype speech models; model files are data and are not copied.
+- Install Swift manually. Mise currently misidentifies Omarchy 4 as an upstream
+  Swift binary distribution, so Swift is intentionally excluded from bootstrap.
 - Launch agterm once and install/verify its agent-status integration if a newer
   release changes the integration files.
 - Restore project repositories separately. Lumarchy and SecondScribe currently
